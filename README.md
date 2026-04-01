@@ -28,11 +28,11 @@
       | supplier_hub_address | VARCHAR(255) | NULL                         | 공급업체 담당 허브 주소        | 주문 엔티티에서만 사용, DB에는 저장하지 않음                                                                |
       | receiver_id          | UUID         | NOT NULL                     | 수령업체ID               |                                                                                           |
       | receiver_name        | VARCHAR(100) | NULL                         | 수령업체명                |                                                                                           |
-      | receiver_address     | VARCHAR(255) | NULL                         | 수령업체 주소              | 주문 엔티티에서만 사용                                                                              |
+      | receiver_address     | VARCHAR(255) | NULL                         | 수령업체 주소              | 주문 엔티티에서만 사용, DB에는 저장하지 않음                                                                |
       | receiver_hub_id      | UUID         | NULL                         | 수령업체 담당 허브ID         | 배송에서의 도착지 허브에 해당<br>(모든 업체는 항상 허브ID를 보유)                                                  |
       | receiver_hub_name    | VARCHAR(50)  | NULL                         | 수령업체 담당 허브명          |                                                                                           |
       | receiver_hub_address | VARCHAR(255) | NULL                         | 수령업체 담당 허브 주소        | 주문 엔티티에서만 사용, DB에는 저장하지 않음                                                                |
-      | description          | VARCHAR(255) | NOT NULL                     | 요구사항                 |                                                                                           |
+      | requirements         | VARCHAR(255) | NOT NULL                     | 요구사항                 |                                                                                           |
       | item_id              | UUID         | NOT NULL                     | 상품ID                 |                                                                                           |
       | item_name            | VARCHAR(255) | NULL                         | 상품명                  |                                                                                           |
       | quantity             | INT          | NOT NULL                     | 주문수량                 |                                                                                           |
