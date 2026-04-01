@@ -1,5 +1,6 @@
 package com.loopang.orderservice.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,10 @@ import java.util.UUID;
 public class OrderManager {
 
 	private UUID hubChargeId;
+
+	@Column(name = "hub_charge_name", length = 50)
 	private String hubChargeName;
+
 	private UUID deliveryId;
 
 	public static OrderManager create(UUID hubChargeId, String hubChargeName) {

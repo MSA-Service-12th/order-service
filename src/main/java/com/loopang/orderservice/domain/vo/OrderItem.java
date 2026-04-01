@@ -1,5 +1,6 @@
 package com.loopang.orderservice.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,9 +15,16 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderItem {
 
+	@Column(name = "item_id", nullable = false)
 	private UUID itemId;
+
+	@Column(name = "item_name", length = 255)
 	private String itemName;
+
+	@Column(nullable = false)
 	private Integer quantity;
+
+	@Column(name = "item_number", nullable = false)
 	private Integer itemNumber;
 
 	public static OrderItem create(UUID itemId, String itemName, Integer quantity, Integer itemNumber) {
