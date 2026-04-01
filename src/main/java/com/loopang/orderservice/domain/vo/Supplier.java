@@ -1,9 +1,8 @@
 package com.loopang.orderservice.domain.vo;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,20 +11,40 @@ import java.util.UUID;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Supplier {
 
-	@Embedded
-	private CompanyInfo companyInfo;
+	@Column(name = "supplier_id", nullable = false)
+	private UUID supplierId;
 
+	@Column(name = "supplier_name", length = 100)
+	private String supplierName;
+
+	@Column(name = "requirements", nullable = false)
+	private String requirements;		// 요청사항
+
+	@AttributeOverrides({
+			@AttributeOverride(name = "hubId", column = @Column(name = "supplier_hub_id")),
+			@AttributeOverride(name = "hubName", column = @Column(name = "supplier_hub_name"))
+	})
 	@Embedded
 	private HubInfo hubInfo;
 
-	public static Supplier create(CompanyInfo companyInfo, HubInfo hubInfo) {
-		return new Supplier(companyInfo, hubInfo);
+	@Builder(access = AccessLevel.PRIVATE)
+	private Supplier(UUID supplierId, String supplierName, String requirements) {
+		this.supplierId = supplierId;
+		this.supplierName = supplierName;
+		this.requirements = requirements;
 	}
 
-	public boolean checkHubId(UUID currentHubId) {
-		return this.hubInfo.getHubId().equals(currentHubId);
+	public static Supplier of(UUID supplierId, String supplierName, String requirements) {
+		return Supplier.builder()
+				.supplierId(supplierId)
+				.supplierName(supplierName)
+				.requirements(requirements)
+				.build();
+	}
+
+	public void updateHubInfo(HubInfo hubInfo) {
+		this.hubInfo = hubInfo;
 	}
 }

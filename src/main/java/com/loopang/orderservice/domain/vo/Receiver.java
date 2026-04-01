@@ -1,12 +1,9 @@
 package com.loopang.orderservice.domain.vo;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Transient;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.UUID;
 
 @Embeddable
 @Getter
@@ -14,19 +11,45 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Receiver {
 
-	@Embedded
-	private CompanyInfo companyInfo;
+	@Column(name = "receiver_id", nullable = false)
+	private UUID receiverId;
 
+	@Column(name = "receiver_name", length = 100)
+	private String receiverName;
+
+	@Transient
+	private String address;
+
+	@AttributeOverrides({
+			@AttributeOverride(name = "hubId", column = @Column(name = "receiver_hub_id")),
+			@AttributeOverride(name = "hubName", column = @Column(name = "receiver_hub_name"))
+	})
 	@Embedded
 	private HubInfo hubInfo;
 
 	@Transient
-	private Address address;
+	private Contact contact;
 
-	@Transient
-	private String slackId;
+	@Builder(access = AccessLevel.PRIVATE)
+	private Receiver(UUID receiverId, String receiverName, String address) {
+		this.receiverId = receiverId;
+		this.receiverName = receiverName;
+		this.address = address;
+	}
 
-	public static Receiver create(CompanyInfo companyInfo, HubInfo hubInfo, Address address, String slackId) {
-		return new Receiver(companyInfo, hubInfo, address, slackId);
+	public static Receiver of(UUID receiverId, String receiverName, String address) {
+		return Receiver.builder()
+				.receiverId(receiverId)
+				.receiverName(receiverName)
+				.address(address)
+				.build();
+	}
+
+	public void updateHubInfo(HubInfo hubInfo) {
+		this.hubInfo = hubInfo;
+	}
+
+	public void updateContact(Contact contact) {
+		this.contact = contact;
 	}
 }

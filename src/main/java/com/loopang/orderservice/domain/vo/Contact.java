@@ -11,13 +11,13 @@ import java.util.UUID;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CompanyInfo {
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+public class Contact {
 
-	private UUID companyId;
-	private String companyName;
+	private UUID companyManagerId;
+	private String slackId;
 
-	public static CompanyInfo of(UUID companyId, String companyName) {
-		return new CompanyInfo(companyId, companyName);
+	public static Contact of(UUID companyManagerId, String slackId) {
+		return new Contact(companyManagerId, slackId);
 	}
 }
