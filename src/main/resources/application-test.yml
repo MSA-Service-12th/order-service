@@ -1,0 +1,31 @@
+# src/main/resources/application-test.yml
+
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    # H2 인메모리 모드 설정
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    # H2 전용 SQL 방언 설정
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      # 테스트 시마다 테이블을 새로 생성하고 종료 시 삭제
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # 예약어 충돌 방지를 위한 따옴표 처리
+        globally_quoted_identifiers: true
+
+  # 테스트 로그 상세 확인용 (선택 사항)
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
