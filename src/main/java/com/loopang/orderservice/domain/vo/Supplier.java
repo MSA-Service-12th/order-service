@@ -22,6 +22,9 @@ public class Supplier {
 	@Column(name = "requirements", nullable = false)
 	private String requirements;		// 요청사항
 
+	@Transient
+	private CompanyType type;
+
 	@AttributeOverrides({
 			@AttributeOverride(name = "hubId", column = @Column(name = "supplier_hub_id")),
 			@AttributeOverride(name = "hubName", column = @Column(name = "supplier_hub_name"))
@@ -30,21 +33,27 @@ public class Supplier {
 	private HubInfo hubInfo;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Supplier(UUID supplierId, String supplierName, String requirements) {
+	private Supplier(UUID supplierId, String supplierName, String requirements, CompanyType type) {
 		this.supplierId = supplierId;
 		this.supplierName = supplierName;
 		this.requirements = requirements;
+		this.type = type;
 	}
 
-	public static Supplier of(UUID supplierId, String supplierName, String requirements) {
+	public static Supplier of(UUID supplierId, String supplierName, String requirements, String companyType) {
 		return Supplier.builder()
 				.supplierId(supplierId)
 				.supplierName(supplierName)
 				.requirements(requirements)
+				.type(CompanyType.from(companyType))
 				.build();
 	}
 
 	public void updateHubInfo(HubInfo hubInfo) {
 		this.hubInfo = hubInfo;
+	}
+
+	public boolean isSupplier() {
+		return this.type == CompanyType.SUPPLIER;
 	}
 }

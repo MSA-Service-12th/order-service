@@ -20,6 +20,9 @@ public class Receiver {
 	@Transient
 	private String address;
 
+	@Transient
+	private CompanyType type;
+
 	@AttributeOverrides({
 			@AttributeOverride(name = "hubId", column = @Column(name = "receiver_hub_id")),
 			@AttributeOverride(name = "hubName", column = @Column(name = "receiver_hub_name"))
@@ -31,17 +34,19 @@ public class Receiver {
 	private Contact contact;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Receiver(UUID receiverId, String receiverName, String address) {
+	private Receiver(UUID receiverId, String receiverName, String address, CompanyType type) {
 		this.receiverId = receiverId;
 		this.receiverName = receiverName;
 		this.address = address;
+		this.type = type;
 	}
 
-	public static Receiver of(UUID receiverId, String receiverName, String address) {
+	public static Receiver of(UUID receiverId, String receiverName, String address, String companyType) {
 		return Receiver.builder()
 				.receiverId(receiverId)
 				.receiverName(receiverName)
 				.address(address)
+				.type(CompanyType.from(companyType))
 				.build();
 	}
 
@@ -51,5 +56,9 @@ public class Receiver {
 
 	public void updateContact(Contact contact) {
 		this.contact = contact;
+	}
+
+	public boolean isReceiver() {
+		return this.type == CompanyType.RECEIVER;
 	}
 }
