@@ -17,46 +17,37 @@
 - 주문 엔터티의 필드는 다음과 같이 구성한다.
     - **주문 엔티티 필드 구성**
         - ‘비고’의 내용이 없는 필드일 경우, 해당 필드는 엔티티와 DB 모두 사용
-        
-        | 컬럼명 | 타입 | 제약 조건 | 설명 | 비고 |
-        | --- | --- | --- | --- | --- |
-        | order_id | UUID | PK | 주문ID |  |
-        | supplier_id | UUID | NOT NULL | 공급업체ID | 주문 요청 업체 |
-        | supplier_name | VARCHAR(100) | NULL | 공급업체명 |  |
-        | supplier_hub_id | UUID | NULL | 공급업체 담당 허브ID | 배송에서의 출발지 허브에 해당
-        (모든 업체는 항상 허브ID를 보유) |
-        | supplier_hub_name | VARCHAR(50) | NULL | 공급업체 담당 허브명 |  |
-        | supplier_hub_address | VARCHAR(255) | NULL | 공급업체 담당 허브 주소 | 주문 엔티티에서만 사용, DB에는 저장하지 않음 |
-        | receiver_id | UUID | NOT NULL | 수령업체ID |  |
-        | receiver_name | VARCHAR(30) | NULL | 수령업체명 |  |
-        | receiver_address | VARCHAR(255) | NULL | 수령업체 주소 | 주문 엔티티에서만 사용 |
-        | receiver_hub_id | UUID | NULL | 수령업체 담당 허브ID | 배송에서의 도착지 허브에 해당
-        (모든 업체는 항상 허브ID를 보유) |
-        | receiver_hub_name | VARCHAR(50) | NULL | 수령업체 담당 허브명 |  |
-        | receiver_hub_address | VARCHAR(255) | NULL | 수령업체 담당 허브 주소 | 주문 엔티티에서만 사용, DB에는 저장하지 않음 |
-        | description | VARCHAR(255) | NOT NULL | 요구사항 |  |
-        | item_id | UUID | NOT NULL | 상품ID |  |
-        | item_name | VARCHAR(255) | NULL | 상품명 |  |
-        | quantity | INT | NOT NULL | 주문수량 |  |
-        | item_number | INT | NOT NULL | 상품순번 | 기본값은 1 |
-        | status | ENUM | NOT NULL
-        (기본값은 `PENDING`) | 주문상태 | `PENDING`, `WAIT_TO_APPROVAL`, `ACCEPTED`, `ON_DELIVERY`, `CANCELLED`, `COMPLETED`
-        중에서 택1 |
-        | hub_charge_id | UUID | NULL | 허브관리자ID | 주문을 승인한 허브관리자의 ID
-          • 주문 승인 단계에서 허브관리자ID를 저장
-          • 권한이 `HUB`인, 로그인한 사용자의 UUID |
-        | hub_charge_name | VARCHAR(50) | NULL | 허브관리자명 | 주문을 승인한 허브관리자의 이름
-          • 권한이 `HUB`인, 로그인한 사용자의 이름 |
-        | delivery_id | UUID | NULL | 배송ID |   • 주문 → 배송 이벤트로 배송 엔티티를 생성
-          • 배송 엔티티 생성 직후 발생한 배송 → 주문 이벤트를 통해 전달받은 배송ID를 저장 |
-        | created_at | TIMESTAMP | NOT NULL | 생성일시 | BaseEntity의 필드 사용 |
-        | created_by | UUID | NOT NULL | 생성자 | BaseUserEntity의 필드 사용 |
-        | updated_at | TIMESTAMP | NULL | 수정일시 | BaseEntity의 필드 사용 |
-        | updated_by | UUID | NULL | 수정자 | BaseUserEntity의 필드 사용 |
-        | deleted_at | TIMESTAMP | NULL | 삭제일시 | BaseEntity의 필드 사용 |
-        | deleted_by | UUID | NULL | 삭제자 | BaseUserEntity의 필드 사용 |
-        | version | INT |  | 버전
-        (주문상태 정합성 관리용) | 이 값은 DB에 저장하지 않고 엔티티에서만 사용 |
+
+      | 컬럼명                  | 타입           | 제약 조건                        | 설명                   | 비고                                                                                        |
+      |:---------------------|:-------------|:-----------------------------|:---------------------|:------------------------------------------------------------------------------------------|
+      | order_id             | UUID         | PK                           | 주문ID                 |                                                                                           |
+      | supplier_id          | UUID         | NOT NULL                     | 공급업체ID               | 주문 요청 업체                                                                                  |
+      | supplier_name        | VARCHAR(100) | NULL                         | 공급업체명                |                                                                                           |
+      | supplier_hub_id      | UUID         | NULL                         | 공급업체 담당 허브ID         | 배송에서의 출발지 허브에 해당<br>(모든 업체는 항상 허브ID를 보유)                                                  |
+      | supplier_hub_name    | VARCHAR(50)  | NULL                         | 공급업체 담당 허브명          |                                                                                           |
+      | supplier_hub_address | VARCHAR(255) | NULL                         | 공급업체 담당 허브 주소        | 주문 엔티티에서만 사용, DB에는 저장하지 않음                                                                |
+      | receiver_id          | UUID         | NOT NULL                     | 수령업체ID               |                                                                                           |
+      | receiver_name        | VARCHAR(100) | NULL                         | 수령업체명                |                                                                                           |
+      | receiver_address     | VARCHAR(255) | NULL                         | 수령업체 주소              | 주문 엔티티에서만 사용                                                                              |
+      | receiver_hub_id      | UUID         | NULL                         | 수령업체 담당 허브ID         | 배송에서의 도착지 허브에 해당<br>(모든 업체는 항상 허브ID를 보유)                                                  |
+      | receiver_hub_name    | VARCHAR(50)  | NULL                         | 수령업체 담당 허브명          |                                                                                           |
+      | receiver_hub_address | VARCHAR(255) | NULL                         | 수령업체 담당 허브 주소        | 주문 엔티티에서만 사용, DB에는 저장하지 않음                                                                |
+      | description          | VARCHAR(255) | NOT NULL                     | 요구사항                 |                                                                                           |
+      | item_id              | UUID         | NOT NULL                     | 상품ID                 |                                                                                           |
+      | item_name            | VARCHAR(255) | NULL                         | 상품명                  |                                                                                           |
+      | quantity             | INT          | NOT NULL                     | 주문수량                 |                                                                                           |
+      | item_number          | INT          | NOT NULL                     | 상품순번                 | 기본값은 1                                                                                    |
+      | status               | ENUM         | NOT NULL<br>(기본값은 `PENDING`) | 주문상태                 | `PENDING`, `WAIT_TO_APPROVAL`, `ACCEPTED`, `ON_DELIVERY`, `CANCELLED`, `COMPLETED` 중에서 택1 |
+      | hub_charge_id        | UUID         | NULL                         | 허브관리자ID              | 주문을 승인한 허브관리자의 ID<br>• 주문 승인 단계에서 허브관리자ID를 저장<br>• 권한이 `HUB`인, 로그인한 사용자의 UUID             |
+      | hub_charge_name      | VARCHAR(50)  | NULL                         | 허브관리자명               | 주문을 승인한 허브관리자의 이름<br>• 권한이 `HUB`인, 로그인한 사용자의 이름                                           |
+      | delivery_id          | UUID         | NULL                         | 배송ID                 | • 주문 → 배송 이벤트로 배송 엔티티를 생성<br>• 배송 엔티티 생성 직후 발생한 배송 → 주문 이벤트를 통해 전달받은 배송ID를 저장             |
+      | created_at           | TIMESTAMP    | NOT NULL                     | 생성일시                 | BaseEntity의 필드 사용                                                                         |
+      | created_by           | UUID         | NOT NULL                     | 생성자                  | BaseUserEntity의 필드 사용                                                                     |
+      | updated_at           | TIMESTAMP    | NULL                         | 수정일시                 | BaseEntity의 필드 사용                                                                         |
+      | updated_by           | UUID         | NULL                         | 수정자                  | BaseUserEntity의 필드 사용                                                                     |
+      | deleted_at           | TIMESTAMP    | NULL                         | 삭제일시                 | BaseEntity의 필드 사용                                                                         |
+      | deleted_by           | UUID         | NULL                         | 삭제자                  | BaseUserEntity의 필드 사용                                                                     |
+      | version              | INT          |                              | 버전<br>(주문상태 정합성 관리용) |                                                                                           |
 
 ---
 
@@ -83,22 +74,20 @@
         - **생성**: 모든 로그인한 사용자(주문자 포함) 가능
         - **수정**: 마스터 관리자와 해당 주문 처리를 담당하는 허브 관리자만 가능
         - **조회 및 검색**: 모든 로그인 사용자가 가능, 단, 주문자 본인은 자신의 주문만 조회 가능
-            
-            
-            |  | 생성 | 수정 | 삭제 | 조회 및 검색 |
-            | --- | --- | --- | --- | --- |
-            | `마스터 관리자` | O | O | O | O |
-            | `허브 관리자`  | O | O (담당 허브) | O (담당 허브) | O (담당 허브) |
-            | `배송 담당자` | O | X | X | O (본인 주문) |
-            | `업체 담당자` | O  | X | X | O (본인 주문) |
+
+        |           | 생성 | 수정        | 삭제        | 조회 및 검색   |
+        |:----------|:---|:----------|:----------|:----------|
+        | `마스터 관리자` | O  | O         | O         | O         |
+        | `허브 관리자`  | O  | O (담당 허브) | O (담당 허브) | O (담당 허브) |
+        | `배송 담당자`  | O  | X         | X         | O (본인 주문) |
+        | `업체 담당자`  | O  | X         | X         | O (본인 주문) |
 
 ---
 
 ## 주문 프로세스 **전반부 - 주문의 유효성 확인**
 
 - `PENDING`: 주문 대기
-    - **주문-업체 & 주문-상품
-    : FeignClient 사용 → 주문 서비스에서 업체 조회, 상품 단건 조회 API 호출**
+    - **주문-업체 & 주문-상품: FeignClient 사용 → 주문 서비스에서 업체 조회, 상품 단건 조회 API 호출**
         - 공급업체, 수령업체, 상품이 삭제되지 않고 존재하는지 확인
             - 조회한 공급업체, 수령업체, 상품 중 하나라도 유효하지 않으면 예외 발생 후 종료
             - 업체, 상품 조회 API를 사용 → 업체, 상품이 존재하는 경우 해당 업체 엔티티를 반환
