@@ -45,13 +45,13 @@ public class Supplier {
 	public static Supplier of(UUID supplierId, String supplierName, String requirements, String companyType) {
 		CompanyType type = CompanyType.find(companyType);
 		if (type != CompanyType.SUPPLIER) {
-			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
 		}
 		return Supplier.builder()
 				.supplierId(supplierId)
 				.supplierName(supplierName)
 				.requirements(requirements)
-				.type(type)
+				.type(CompanyType.find(companyType))
 				.build();
 	}
 
