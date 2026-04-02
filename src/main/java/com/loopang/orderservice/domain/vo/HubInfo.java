@@ -1,7 +1,7 @@
 package com.loopang.orderservice.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,10 +15,13 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HubInfo {
 
+	@Column(nullable = false)
 	private UUID hubId;
+
+	@Column(nullable = false)
 	private String hubName;
 
-	@Transient
+	@Column(nullable = false)
 	private String hubAddress;
 
 	public static HubInfo of(UUID hubId, String hubName, String hubAddress) {

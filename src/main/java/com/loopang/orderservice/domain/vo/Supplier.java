@@ -18,7 +18,7 @@ public class Supplier {
 	@Column(name = "supplier_id", nullable = false)
 	private UUID supplierId;
 
-	@Column(name = "supplier_name", length = 100)
+	@Column(name = "supplier_name", nullable = false, length = 100)
 	private String supplierName;
 
 	@Column(name = "requirements", nullable = false)
@@ -28,8 +28,9 @@ public class Supplier {
 	private CompanyType type;
 
 	@AttributeOverrides({
-			@AttributeOverride(name = "hubId", column = @Column(name = "supplier_hub_id")),
-			@AttributeOverride(name = "hubName", column = @Column(name = "supplier_hub_name"))
+			@AttributeOverride(name = "hubId", column = @Column(name = "supplier_hub_id", nullable = false)),
+			@AttributeOverride(name = "hubName", column = @Column(name = "supplier_hub_name", nullable = false)),
+			@AttributeOverride(name = "hubAddress", column = @Column(name = "supplier_hub_address", nullable = false))
 	})
 	@Embedded
 	private HubInfo hubInfo;

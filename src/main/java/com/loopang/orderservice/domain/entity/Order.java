@@ -38,7 +38,7 @@ public class Order extends BaseUserEntity {
 	private UUID deliveryId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "status")
+	@Column(name = "status", nullable = false)
 	private OrderStatus status;
 
 	@Version

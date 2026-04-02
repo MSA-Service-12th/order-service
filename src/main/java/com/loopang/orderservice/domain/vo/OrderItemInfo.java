@@ -18,7 +18,7 @@ public class OrderItemInfo {
 	@Column(name = "item_id", nullable = false)
 	private UUID itemId;
 
-	@Column(name = "item_name")
+	@Column(name = "item_name", nullable = false)
 	private String itemName;
 
 	public static OrderItemInfo of(UUID itemId, String itemName) {

@@ -16,18 +16,19 @@ public class Receiver {
 	@Column(name = "receiver_id", nullable = false)
 	private UUID receiverId;
 
-	@Column(name = "receiver_name", length = 100)
+	@Column(name = "receiver_name", nullable = false, length = 100)
 	private String receiverName;
 
-	@Transient
+	@Column(name = "receiver_address", nullable = false)
 	private String address;
 
 	@Transient
 	private CompanyType type;
 
 	@AttributeOverrides({
-			@AttributeOverride(name = "hubId", column = @Column(name = "receiver_hub_id")),
-			@AttributeOverride(name = "hubName", column = @Column(name = "receiver_hub_name"))
+			@AttributeOverride(name = "hubId", column = @Column(name = "receiver_hub_id", nullable = false)),
+			@AttributeOverride(name = "hubName", column = @Column(name = "receiver_hub_name", nullable = false)),
+			@AttributeOverride(name = "hubAddress", column = @Column(name = "receiver_hub_address", nullable = false))
 	})
 	@Embedded
 	private HubInfo hubInfo;
