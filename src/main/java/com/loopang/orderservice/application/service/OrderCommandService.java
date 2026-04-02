@@ -19,7 +19,6 @@ public class OrderCommandService {
 
 	private final OrderRepository orderRepository;
 
-	private final OrderCompanyValidator orderCompanyValidator;
 	private final OrderAccess orderAccess;
 
 	private final CompanyProvider companyProvider;
@@ -37,25 +36,22 @@ public class OrderCommandService {
 	@Transactional
 	public OrderCreateOutputDto createOrder(OrderCreateInputDto request) {
 
-		// 1. 공급업체, 수령업체, 상품이 삭제되지 않고 존재하는지 확인
+		// 1. 공급업체, 수령업체, 상품이 삭제되지 않고 존재하는지 확인(공급업체 생성 과정에서 검증도 수행)
 		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
 		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
 		OrderItemInfo itemInfo = itemProvider.getItem(request.getItemId());
 
-		// 2. 공급업체ID의 업체타입이 SUPPLIER가 아니거나, 수령업체의 업체타입이 RECEIVER가 아닐 경우 예외 발생
-		orderCompanyValidator.validate(supplier, receiver);
-
-		// 3. 업체는 반드시 특정 허브에 소속되므로 허브ID를 통해 상세 정보(이름, 주소)를 조회함
+		// 2. 업체는 반드시 특정 허브에 소속되므로 허브ID를 통해 상세 정보(이름, 주소)를 조회함
 		HubInfo supplierHub = hubProvider.getHub(supplier.getHubId());
 		HubInfo receiverHub = hubProvider.getHub(receiver.getHubId());
 
 		supplier.updateHubInfo(supplierHub);
 		receiver.updateHubInfo(receiverHub);
 
-		// 4. 주문 항목 구성 (기본 상품순번 1 적용)
+		// 3. 주문 항목 구성 (기본 상품순번 1 적용)
 		OrderItem orderItem = OrderItem.of(itemInfo, request.getQuantity(), 1);
 
-		// 5. 주문 엔티티 생성 및 저장 (상태는 PENDING으로 시작)
+		// 4. 주문 엔티티 생성 및 저장 (상태는 PENDING으로 시작)
 		Order order = Order.create(supplier, receiver, orderItem);
 		Order savedOrder = orderRepository.save(order);
 

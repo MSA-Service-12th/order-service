@@ -43,6 +43,10 @@ public class Supplier {
 	}
 
 	public static Supplier of(UUID supplierId, String supplierName, String requirements, String companyType) {
+		CompanyType type = CompanyType.from(companyType);
+		if (type != CompanyType.SUPPLIER) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
+		}
 		return Supplier.builder()
 				.supplierId(supplierId)
 				.supplierName(supplierName)
@@ -53,10 +57,6 @@ public class Supplier {
 
 	public void updateHubInfo(HubInfo hubInfo) {
 		this.hubInfo = hubInfo;
-	}
-
-	public boolean isSupplier() {
-		return this.type == CompanyType.SUPPLIER;
 	}
 
 	public UUID getHubId() {

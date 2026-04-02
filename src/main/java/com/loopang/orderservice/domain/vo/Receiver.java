@@ -44,6 +44,10 @@ public class Receiver {
 	}
 
 	public static Receiver of(UUID receiverId, String receiverName, String address, String companyType) {
+		CompanyType type = CompanyType.from(companyType);
+		if (type != CompanyType.RECEIVER) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
+		}
 		return Receiver.builder()
 				.receiverId(receiverId)
 				.receiverName(receiverName)
@@ -58,10 +62,6 @@ public class Receiver {
 
 	public void updateContact(Contact contact) {
 		this.contact = contact;
-	}
-
-	public boolean isReceiver() {
-		return this.type == CompanyType.RECEIVER;
 	}
 
 	public UUID getHubId() {
