@@ -1,29 +1,31 @@
 package com.loopang.orderservice.application.service;
 
-import com.loopang.orderservice.application.dto.OrderCreateRequestDto;
-import com.loopang.orderservice.application.dto.OrderResponseDto;
+import com.loopang.orderservice.application.dto.OrderCreateInputDto;
+import com.loopang.orderservice.application.dto.OrderCreateOutputDto;
 import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.repository.OrderRepository;
-import com.loopang.orderservice.domain.service.CompanyProvider;
-import com.loopang.orderservice.domain.service.HubProvider;
-import com.loopang.orderservice.domain.service.ItemProvider;
-import com.loopang.orderservice.domain.service.OrderCompanyValidator;
+import com.loopang.orderservice.domain.service.*;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// 이 클래스에서는 주문 생성, 수정, 삭제에 관한 실제 서비스 로직을 구현(이벤트 처리는 별도의 클래스에서 수행할 예정)
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderCommandService {
 
 	private final OrderRepository orderRepository;
+
 	private final OrderCompanyValidator orderCompanyValidator;
+	private final OrderAccess orderAccess;
+
 	private final CompanyProvider companyProvider;
 	private final ItemProvider itemProvider;
 	private final HubProvider hubProvider;
+	private final UserProvider userProvider;
 
 	/**
 	 * 주문 생성 (주문 프로세스 전반부)
@@ -33,11 +35,11 @@ public class OrderCommandService {
 	 * 4. 주문 엔티티 생성 및 저장
 	 */
 	@Transactional
-	public OrderResponseDto createOrder(OrderCreateRequestDto request) {
+	public OrderCreateOutputDto createOrder(OrderCreateInputDto request) {
 
 		// 1. 공급업체, 수령업체, 상품이 삭제되지 않고 존재하는지 확인
-		Supplier supplier = companyProvider.getSupplier(request.getSupplierId());
-		Receiver receiver = companyProvider.getReceiver(request.getReceiverId());
+		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
+		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
 		OrderItemInfo itemInfo = itemProvider.getItem(request.getItemId());
 
 		// 2. 공급업체ID의 업체타입이 SUPPLIER가 아니거나, 수령업체의 업체타입이 RECEIVER가 아닐 경우 예외 발생
@@ -60,6 +62,6 @@ public class OrderCommandService {
 		// TODO: 주문 생성 이벤트 발송 (주문 -> 허브 방향: 허브 재고 차감 요청)
 		// publishOrderCreatedEvent(savedOrder);
 
-		return OrderResponseDto.from(savedOrder);
+		return OrderCreateOutputDto.from(savedOrder);
 	}
 }
