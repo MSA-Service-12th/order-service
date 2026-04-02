@@ -10,12 +10,13 @@ import com.loopang.orderservice.domain.service.ItemProvider;
 import com.loopang.orderservice.domain.service.OrderCompanyValidator;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderCommandService {
 
 	private final OrderRepository orderRepository;
@@ -43,8 +44,8 @@ public class OrderCommandService {
 		orderCompanyValidator.validate(supplier, receiver);
 
 		// 3. 업체는 반드시 특정 허브에 소속되므로 허브ID를 통해 상세 정보(이름, 주소)를 조회함
-		HubInfo supplierHub = hubProvider.getHub(supplier.getHubInfo().getHubId());
-		HubInfo receiverHub = hubProvider.getHub(receiver.getHubInfo().getHubId());
+		HubInfo supplierHub = hubProvider.getHub(supplier.getHubId());
+		HubInfo receiverHub = hubProvider.getHub(receiver.getHubId());
 
 		supplier.updateHubInfo(supplierHub);
 		receiver.updateHubInfo(receiverHub);

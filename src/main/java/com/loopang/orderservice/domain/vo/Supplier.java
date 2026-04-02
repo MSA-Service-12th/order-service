@@ -1,5 +1,7 @@
 package com.loopang.orderservice.domain.vo;
 
+import com.loopang.orderservice.domain.exception.OrderErrorCode;
+import com.loopang.orderservice.domain.exception.OrderException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -55,5 +57,12 @@ public class Supplier {
 
 	public boolean isSupplier() {
 		return this.type == CompanyType.SUPPLIER;
+	}
+
+	public UUID getHubId() {
+		if (this.hubInfo == null) {
+			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
+		}
+		return this.hubInfo.getHubId();
 	}
 }

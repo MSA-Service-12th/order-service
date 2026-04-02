@@ -13,7 +13,7 @@ public enum CompanyType {
 	public static CompanyType from(String companyType) {
 		try {
 			return CompanyType.valueOf(companyType.toUpperCase());
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException | NullPointerException e) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_COMPANY_TYPE);
 		}
 	}
