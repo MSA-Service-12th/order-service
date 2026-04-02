@@ -5,6 +5,7 @@ import com.loopang.orderservice.application.dto.OrderCreateOutputDto;
 import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.repository.OrderRepository;
 import com.loopang.orderservice.domain.service.*;
+import com.loopang.orderservice.domain.service.dto.ItemData;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +41,9 @@ public class OrderCommandService {
 		// 1. 공급업체, 수령업체, 상품 조회 및 null 체크
 		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
 		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
-		OrderItemInfo itemInfo = itemProvider.getItem(request.getItemId());
+		ItemData itemData = itemProvider.getItem(request.getItemId());
 
+		OrderItemInfo itemInfo = OrderItemInfo.from(itemData);
 		orderValidator.validate(supplier, receiver, itemInfo);
 
 		// 2. 업체는 반드시 특정 허브에 소속되므로 허브ID를 통해 상세 정보(이름, 주소)를 조회함

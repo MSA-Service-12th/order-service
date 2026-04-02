@@ -1,5 +1,6 @@
 package com.loopang.orderservice.domain.vo;
 
+import com.loopang.orderservice.domain.service.dto.ItemData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -21,7 +22,7 @@ public class OrderItemInfo {
 	@Column(name = "item_name", nullable = false)
 	private String itemName;
 
-	public static OrderItemInfo of(UUID itemId, String itemName) {
-		return new OrderItemInfo(itemId, itemName);
+	public static OrderItemInfo from(ItemData itemData) {
+		return new OrderItemInfo(itemData.itemId(), itemData.itemName());
 	}
 }
