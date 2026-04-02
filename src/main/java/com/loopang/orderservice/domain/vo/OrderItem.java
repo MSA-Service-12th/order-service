@@ -1,5 +1,7 @@
 package com.loopang.orderservice.domain.vo;
 
+import com.loopang.orderservice.domain.exception.OrderErrorCode;
+import com.loopang.orderservice.domain.exception.OrderException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -35,7 +37,7 @@ public class OrderItem {
 
 	private static void checkQuantity(Integer quantity) {
 		if (quantity == null || quantity < 1) {
-			throw new IllegalArgumentException("주문 수량은 1개 이상이어야 합니다.");
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_QUANTITY);
 		}
 	}
 }

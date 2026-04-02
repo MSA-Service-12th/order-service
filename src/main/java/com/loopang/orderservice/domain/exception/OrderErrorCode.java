@@ -12,7 +12,9 @@ public enum OrderErrorCode implements ErrorCodeSpec {
 	ORDER_CANNOT_DELETE("ORDER_005", HttpStatus.BAD_REQUEST, "주문 삭제를 진행할 수 없는 상태입니다."),
 	ORDER_INVALID_SUPPLIER("ORDER_006", HttpStatus.BAD_REQUEST, "현재 업체가 공급업체가 아닙니다."),
 	ORDER_INVALID_RECEIVER("ORDER_007", HttpStatus.BAD_REQUEST, "현재 업체가 수령업체가 아닙니다."),
-	ORDER_INVALID_COMPANY_TYPE("ORDER_008", HttpStatus.BAD_REQUEST, "현재 업체의 업체타입이 유효하지 않습니다.")
+	ORDER_INVALID_COMPANY_TYPE("ORDER_008", HttpStatus.BAD_REQUEST, "현재 업체의 업체타입이 유효하지 않습니다."),
+	ORDER_INVALID_QUANTITY("ORDER_009", HttpStatus.BAD_REQUEST, "유효하지 않은 주문수량입니다."),
+	ORDER_HUB_NOT_FOUND("ORDER_010", HttpStatus.BAD_REQUEST, "업체의 담당 허브 정보를 찾을 수 없습니다.")
 
 	;
 
