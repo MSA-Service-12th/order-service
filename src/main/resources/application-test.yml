@@ -22,8 +22,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # 예약어 충돌 방지를 위한 따옴표 처리
-        globally_quoted_identifiers: true
 
   # 테스트 로그 상세 확인용 (선택 사항)
   logging:
