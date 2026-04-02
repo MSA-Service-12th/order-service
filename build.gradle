@@ -43,6 +43,12 @@ dependencies {
 	implementation 'com.loopang:common:0.0.4-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+	// querydsl-apt: Q클래스 생성 자동화
+	annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
@@ -59,4 +65,19 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Q클래스 생성 경로 설정
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+sourceSets {
+	// Q클래스 저장 디렉토리를 main.java 소스셋에 추가
+	main.java.srcDirs += [ querydslDir ]
+}
+
+// 컴파일 및 클린 태스크 최적화
+tasks.withType(JavaCompile).configureEach {
+	options.getGeneratedSourceOutputDirectory().set(querydslDir)
+}
+clean {
+	delete querydslDir
 }
