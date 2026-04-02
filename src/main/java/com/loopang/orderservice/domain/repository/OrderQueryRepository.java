@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface OrderQueryRepository {
 
 	Optional<Order> findById(UUID orderId);
-	Page<Order> findAll(OrderSearchConditionDto condition, Pageable pageable);
+	Page<Order> findAllOrders(OrderSearchConditionDto condition, Pageable pageable);
 }

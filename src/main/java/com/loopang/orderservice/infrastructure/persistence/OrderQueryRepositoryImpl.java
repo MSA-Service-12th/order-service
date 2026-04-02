@@ -16,14 +16,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 
@@ -40,7 +40,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 	}
 
 	@Override
-	public Page<Order> findAll(OrderSearchConditionDto condition, Pageable pageable) {
+	public Page<Order> findAllOrders(OrderSearchConditionDto condition, Pageable pageable) {
 		BooleanBuilder booleanBuilder = createSearchCondition(condition);
 
 		List<Order> content = queryFactory

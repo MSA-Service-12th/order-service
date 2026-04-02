@@ -6,8 +6,7 @@ import com.loopang.orderservice.application.dto.OrderSummaryDto;
 import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
-import com.loopang.orderservice.domain.repository.OrderRepository;
-import com.loopang.orderservice.domain.vo.UserRole;
+import com.loopang.orderservice.domain.repository.OrderQueryRepository;
 import com.loopang.orderservice.domain.vo.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,17 +21,17 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class OrderQueryService {
 
-	private final OrderRepository orderRepository;
+	private final OrderQueryRepository orderQueryRepository;
 
-	public OrderDetailsDto getOrder(UUID orderId, UUID userId, UserType userRole) {
-		Order order = orderRepository.findById(orderId)
+	public OrderDetailsDto getOrder(UUID orderId, UUID userId, UserType userType) {
+		Order order = orderQueryRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
 		return OrderDetailsDto.from(order);
 	}
 
-	public Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userRole) {
-		return orderRepository.findAll(condition, pageable)
+	public Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userType) {
+		return orderQueryRepository.findAllOrders(condition, pageable)
 				.map(OrderSummaryDto::from);
 	}
 }
