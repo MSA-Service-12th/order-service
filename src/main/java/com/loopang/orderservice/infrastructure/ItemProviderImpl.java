@@ -15,6 +15,6 @@ public class ItemProviderImpl implements ItemProvider {
 
 	@Override
 	public OrderItemInfo getItem(UUID itemId) {
-		return null;
+		throw new UnsupportedOperationException("ItemClient Feign 연동이 필요합니다");
 	}
 }

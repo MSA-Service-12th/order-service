@@ -15,6 +15,6 @@ public class HubProviderImpl implements HubProvider {
 
 	@Override
 	public HubInfo getHub(UUID hubId) {
-		return null;
+		throw new UnsupportedOperationException("HubClient Feign 연동이 필요합니다");
 	}
 }

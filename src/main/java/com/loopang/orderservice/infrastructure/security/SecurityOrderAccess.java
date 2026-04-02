@@ -17,6 +17,6 @@ public class SecurityOrderAccess implements OrderAccess {
 
 	@Override
 	public boolean checkAuthority(UUID userId, UserType userType, UUID supplierHubId) {
-		return false;
+		throw new UnsupportedOperationException("추후 구현 예정");
 	}
 }

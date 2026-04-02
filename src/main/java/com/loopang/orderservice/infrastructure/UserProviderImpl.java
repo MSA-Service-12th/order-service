@@ -15,6 +15,6 @@ public class UserProviderImpl implements UserProvider {
 
 	@Override
 	public UserData getUser(UUID userId) {
-		return null;
+		throw new UnsupportedOperationException("UserClient Feign 연동이 필요합니다");
 	}
 }
