@@ -44,7 +44,7 @@ public class Receiver {
 	}
 
 	public static Receiver of(UUID receiverId, String receiverName, String address, String companyType) {
-		CompanyType type = CompanyType.from(companyType);
+		CompanyType type = CompanyType.find(companyType);
 		if (type != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
 		}
@@ -52,7 +52,7 @@ public class Receiver {
 				.receiverId(receiverId)
 				.receiverName(receiverName)
 				.address(address)
-				.type(CompanyType.from(companyType))
+				.type(CompanyType.find(companyType))
 				.build();
 	}
 
