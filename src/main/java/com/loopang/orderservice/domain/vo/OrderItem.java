@@ -17,17 +17,14 @@ public class OrderItem {
 	private OrderItemInfo orderItemInfo;
 
 	@Column(name = "quantity", nullable = false)
-	private int quantity;
+	private Integer quantity;
 
 	@Column(name = "item_number", nullable = false)
-	private int itemNumber = 1;
+	private Integer itemNumber = 1;
 
-	public static OrderItem of(OrderItemInfo itemInfo, Integer quantity, Integer itemNumber) {
+	public static OrderItem of(OrderItemInfo itemInfo, int quantity, int itemNumber) {
 		checkQuantity(quantity);
-		if (itemNumber == null) {
-			itemNumber = 1;
-		}
-		return new OrderItem(itemInfo, quantity, itemNumber);
+		return new OrderItem(itemInfo, quantity, Math.max(itemNumber, 1));
 	}
 
 	public void updateQuantity(Integer quantity) {
