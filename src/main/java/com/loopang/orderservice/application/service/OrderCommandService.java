@@ -20,6 +20,7 @@ public class OrderCommandService {
 	private final OrderRepository orderRepository;
 
 	private final OrderAccess orderAccess;
+	private final OrderValidator orderValidator;
 
 	private final CompanyProvider companyProvider;
 	private final ItemProvider itemProvider;
@@ -36,10 +37,12 @@ public class OrderCommandService {
 	@Transactional
 	public OrderCreateOutputDto createOrder(OrderCreateInputDto request) {
 
-		// 1. 공급업체, 수령업체, 상품이 삭제되지 않고 존재하는지 확인(공급업체 생성 과정에서 검증도 수행)
+		// 1. 공급업체, 수령업체, 상품 조회 및 null 체크
 		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
 		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
 		OrderItemInfo itemInfo = itemProvider.getItem(request.getItemId());
+
+		orderValidator.validate(supplier, receiver, itemInfo);
 
 		// 2. 업체는 반드시 특정 허브에 소속되므로 허브ID를 통해 상세 정보(이름, 주소)를 조회함
 		HubInfo supplierHub = hubProvider.getHub(supplier.getHubId());
