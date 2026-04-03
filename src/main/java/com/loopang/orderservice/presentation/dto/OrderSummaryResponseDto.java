@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class OrderListResponseDto {
+public class OrderSummaryResponseDto {
 
     private UUID orderId;
     private OrderStatus status;
@@ -23,8 +23,8 @@ public class OrderListResponseDto {
     private String itemName;
     private LocalDateTime createdAt;
 
-    public static OrderListResponseDto from(OrderSummaryDto summary) {
-        return OrderListResponseDto.builder()
+    public static OrderSummaryResponseDto from(OrderSummaryDto summary) {
+        return OrderSummaryResponseDto.builder()
                 .orderId(summary.getOrderId())
                 .status(summary.getStatus())
                 .quantity(summary.getQuantity())

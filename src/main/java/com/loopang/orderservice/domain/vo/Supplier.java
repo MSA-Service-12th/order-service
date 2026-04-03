@@ -66,4 +66,11 @@ public class Supplier {
 		}
 		return this.hubInfo.getHubId();
 	}
+
+	public String getHubName() {
+		if (this.hubInfo == null) {
+			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
+		}
+		return this.hubInfo.getHubName();
+	}
 }

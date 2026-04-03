@@ -7,6 +7,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.*;
 
+import java.util.UUID;
+
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,5 +38,13 @@ public class OrderItem {
 		if (quantity == null || quantity < 1) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_QUANTITY);
 		}
+	}
+
+	public UUID getItemId() {
+		return this.orderItemInfo.getItemId();
+	}
+
+	public String getItemName() {
+		return this.orderItemInfo.getItemName();
 	}
 }
