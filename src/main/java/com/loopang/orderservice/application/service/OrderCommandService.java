@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -55,11 +57,11 @@ public class OrderCommandService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public OrderDeleteCommandDto deleteOrder(OrderDeleteCommandDto command) {
-		Order order = orderRepository.findById(command.getOrderId())
+	public OrderDeleteCommandDto deleteOrder(UUID orderId, UUID userId) {
+		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
-		order.delete(command.getUserId());
+		order.delete(userId);
 
 		return OrderDeleteCommandDto.from(order);
 	}
