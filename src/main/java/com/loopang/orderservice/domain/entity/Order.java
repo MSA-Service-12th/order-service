@@ -14,9 +14,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Getter
 @Table(name = "p_order")
+@SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseUserEntity {
 
@@ -69,11 +72,18 @@ public class Order extends BaseUserEntity {
 	}
 
 	public void updateQuantity(Integer quantity) {
+		if (this.status != OrderStatus.PENDING &&
+				this.status != OrderStatus.WAIT_TO_APPROVAL &&
+				this.status != OrderStatus.CANCELLED) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION); // 상태 변경 불가 예외
+		}
 		this.orderItem.updateQuantity(quantity);
 	}
 
 	public void delete(UUID deletedBy) {
-		if (this.status != OrderStatus.PENDING && this.status != OrderStatus.CANCELLED) {
+		if (this.status != OrderStatus.PENDING &&
+				this.status != OrderStatus.WAIT_TO_APPROVAL &&
+				this.status != OrderStatus.CANCELLED) {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
 		super.delete(deletedBy);
@@ -122,6 +132,9 @@ public class Order extends BaseUserEntity {
 	}
 
 	private void validateTransition(OrderStatus next) {
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE); // 적절한 '삭제된 주문' 관련 에러 코드로 대체 가능
+		}
 		if (!this.status.checkTransition(next)) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION);
 		}
