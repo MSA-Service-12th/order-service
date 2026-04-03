@@ -24,8 +24,12 @@ public class OrderController {
 	private final OrderQueryService orderQueryService;
 
 	@PostMapping
-	public OrderCreateResponseDto createOrder(@RequestBody OrderCreateRequestDto requestDto) {
-		OrderCreateResultDto result = orderCommandService.createOrder(OrderCreateCommandDto.from(requestDto));
+	public OrderCreateResponseDto createOrder(
+			@RequestBody OrderCreateRequestDto requestDto,
+			@RequestHeader(value = "X-User-Role") String userRole) {
+		OrderCreateResultDto result = orderCommandService.createOrder(
+				OrderCreateCommandDto.from(requestDto),
+				UserType.from(userRole));
 
 		return OrderCreateResponseDto.from(result);
 	}

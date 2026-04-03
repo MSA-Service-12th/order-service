@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public interface OrderAccess {
 
+    void validateCreateAccess(UserType userType);
+
     void validateListSearchAccess(UserType userType);
 
     //

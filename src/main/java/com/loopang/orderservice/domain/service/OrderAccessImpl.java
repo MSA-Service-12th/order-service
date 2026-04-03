@@ -12,6 +12,13 @@ import java.util.UUID;
 public class OrderAccessImpl implements OrderAccess {
 
     @Override
+    public void validateCreateAccess(UserType userType) {
+        if (userType == UserType.PENDING) {
+            throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
+        }
+    }
+
+    @Override
     public void validateListSearchAccess(UserType userType) {
         if (userType != UserType.MASTER) {
             throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
