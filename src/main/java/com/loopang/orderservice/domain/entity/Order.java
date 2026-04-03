@@ -89,14 +89,27 @@ public class Order extends BaseUserEntity {
 		super.delete(deletedBy);
 	}
 
+	// 주문 인가 관련
+
 	public boolean isCreatedBy(UUID userId) {
 		return this.getCreatedBy() != null && this.getCreatedBy().equals(userId);
 	}
 
 	public boolean isManagedByOrInitial(UUID userId, UUID managedHubId) {
-		return Optional.ofNullable(this.hubManager)
-				.map(hubManager -> hubManager.getHubChargeId().equals(userId))
-				.orElseGet(() -> Objects.equals(this.getSupplier().getHubId(), managedHubId));
+		// 1. 직접 담당자로 지정된 경우
+		if (this.hubManager != null && Objects.equals(this.hubManager.getHubChargeId(), userId)) {
+			return true;
+		}
+
+		// 2. 담당자가 아니더라도 해당 주문의 출발 허브 또는 도착 허브의 관리자인 경우
+		UUID supplierHubId = Optional.ofNullable(this.supplier)
+				.map(Supplier::getHubId)
+				.orElse(null);
+		UUID receiverHubId = Optional.ofNullable(this.receiver)
+				.map(Receiver::getHubId)
+				.orElse(null);
+
+		return Objects.equals(supplierHubId, managedHubId) || Objects.equals(receiverHubId, managedHubId);
 	}
 
 	public boolean isAssignedToDelivery(UUID deliveryId) {
