@@ -17,6 +17,7 @@ public enum OrderErrorCode implements ErrorCodeSpec {
 	ORDER_HUB_NOT_FOUND("ORDER_010", HttpStatus.BAD_REQUEST, "업체의 담당 허브 정보를 찾을 수 없습니다."),
 	ORDER_ITEM_NOT_FOUND("ORDER_011", HttpStatus.NOT_FOUND, "주문할 상품을 찾을 수 없습니다."),
 	ORDER_FORBIDDEN("ORDER_012", HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
+	ORDER_INVALID_ITEM("ORDER_013", HttpStatus.BAD_REQUEST, "주문할 상품을 제공하지 않는 업체입니다.")
 
 	;
 
