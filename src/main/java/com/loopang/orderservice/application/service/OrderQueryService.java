@@ -22,16 +22,17 @@ import java.util.UUID;
 public class OrderQueryService {
 
 	private final OrderQueryRepository orderQueryRepository;
+	private final OrderDtoMapper orderDtoMapper;
 
 	public OrderDetailsDto getOrder(UUID orderId, UUID userId, UserType userType) {
 		Order order = orderQueryRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
-		return OrderDetailsDto.from(order);
+		return orderDtoMapper.toDetailsDto(order);
 	}
 
 	public Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userType) {
 		return orderQueryRepository.findAllOrders(condition, pageable)
-				.map(OrderSummaryDto::from);
+				.map(orderDtoMapper::toSummaryDto);
 	}
 }

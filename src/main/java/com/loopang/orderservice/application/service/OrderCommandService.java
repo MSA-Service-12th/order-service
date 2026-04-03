@@ -24,6 +24,7 @@ import java.util.UUID;
 public class OrderCommandService {
 
 	private final OrderRepository orderRepository;
+	private final OrderDtoMapper orderDtoMapper;
 
 	private final OrderValidator orderValidator;
 
@@ -53,7 +54,7 @@ public class OrderCommandService {
 		Order order = Order.create(supplier, receiver, orderItem);
 		Order savedOrder = orderRepository.save(order);
 
-		return OrderDetailsDto.from(savedOrder);
+		return orderDtoMapper.toDetailsDto(savedOrder);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
