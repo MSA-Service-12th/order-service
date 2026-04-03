@@ -1,6 +1,7 @@
 package com.loopang.orderservice.application.service;
 
 import com.loopang.orderservice.application.dto.OrderCreateCommandDto;
+import com.loopang.orderservice.application.dto.OrderCreateResultDto;
 import com.loopang.orderservice.application.dto.OrderDeleteCommandDto;
 import com.loopang.orderservice.application.dto.OrderDetailsDto;
 import com.loopang.orderservice.domain.entity.Order;
@@ -34,7 +35,7 @@ public class OrderCommandService {
 	private final UserProvider userProvider;
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	public OrderDetailsDto createOrder(OrderCreateCommandDto request) {
+	public OrderCreateResultDto createOrder(OrderCreateCommandDto request) {
 
 		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
 		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
@@ -54,7 +55,7 @@ public class OrderCommandService {
 		Order order = Order.create(supplier, receiver, orderItem);
 		Order savedOrder = orderRepository.save(order);
 
-		return orderDtoMapper.toDetailsDto(savedOrder);
+		return orderDtoMapper.toCreateResultDto(savedOrder);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -66,4 +67,6 @@ public class OrderCommandService {
 
 		return OrderDeleteCommandDto.from(order);
 	}
+
+	// TODO: 주문 수량 변경, 주문 상태 변경(주문 승인, 취소) 관련 API 추가
 }

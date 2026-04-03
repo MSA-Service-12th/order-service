@@ -10,10 +10,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderDeleteResponseDto {
-
     private UUID orderId;
     private LocalDateTime deletedAt;
     private UUID deletedBy;

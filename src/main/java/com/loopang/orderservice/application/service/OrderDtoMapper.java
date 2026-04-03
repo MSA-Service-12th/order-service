@@ -1,5 +1,6 @@
 package com.loopang.orderservice.application.service;
 
+import com.loopang.orderservice.application.dto.OrderCreateResultDto;
 import com.loopang.orderservice.application.dto.OrderDetailsDto;
 import com.loopang.orderservice.application.dto.OrderSummaryDto;
 import com.loopang.orderservice.domain.entity.Order;
@@ -10,6 +11,21 @@ import java.util.Optional;
 
 @Component
 public class OrderDtoMapper {
+
+    public OrderCreateResultDto toCreateResultDto(Order order) {
+        return OrderCreateResultDto.builder()
+                .orderId(order.getOrderId())
+                .supplierId(order.getSupplier().getSupplierId())
+                .supplierHubId(order.getSupplier().getHubId())
+                .receiverId(order.getReceiver().getReceiverId())
+                .receiverHubId(order.getReceiver().getHubId())
+                .itemId(order.getOrderItem().getItemId())
+                .quantity(order.getOrderItem().getQuantity())
+                .status(order.getStatus())
+                .createdAt(order.getCreatedAt())
+                .createdBy(order.getCreatedBy())
+                .build();
+    }
 
     public OrderDetailsDto toDetailsDto(Order order) {
         Supplier supplier = order.getSupplier();
