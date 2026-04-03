@@ -13,7 +13,7 @@ public class OrderAccessImpl implements OrderAccess {
 
     @Override
     public void validateCreateAccess(UserType userType) {
-        if (userType == UserType.PENDING) {
+        if (userType == null || userType == UserType.PENDING) {
             throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
         }
     }
@@ -41,7 +41,6 @@ public class OrderAccessImpl implements OrderAccess {
 
         // 임시 로직: userId와 deliveryId가 존재하고, 주문에 할당된 배송 정보와 일치하는지 확인
         if (userType == UserType.DELIVERY
-                && order.isCreatedBy(userId)
                 && order.isAssignedToDelivery(correlationId)) {
             return;
         }

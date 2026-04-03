@@ -73,8 +73,7 @@ public class Order extends BaseUserEntity {
 
 	public void updateQuantity(Integer quantity) {
 		if (this.status != OrderStatus.PENDING &&
-				this.status != OrderStatus.WAIT_TO_APPROVAL &&
-				this.status != OrderStatus.CANCELLED) {
+				this.status != OrderStatus.WAIT_TO_APPROVAL) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION); // 상태 변경 불가 예외
 		}
 		this.orderItem.updateQuantity(quantity);
@@ -82,8 +81,7 @@ public class Order extends BaseUserEntity {
 
 	public void delete(UUID deletedBy) {
 		if (this.status != OrderStatus.PENDING &&
-				this.status != OrderStatus.WAIT_TO_APPROVAL &&
-				this.status != OrderStatus.CANCELLED) {
+				this.status != OrderStatus.WAIT_TO_APPROVAL) {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
 		super.delete(deletedBy);
@@ -99,6 +97,9 @@ public class Order extends BaseUserEntity {
 		// 1. 직접 담당자로 지정된 경우
 		if (this.hubManager != null && Objects.equals(this.hubManager.getHubChargeId(), userId)) {
 			return true;
+		}
+		if (managedHubId == null) {
+			return false;
 		}
 
 		// 2. 담당자가 아니더라도 해당 주문의 출발 허브 또는 도착 허브의 관리자인 경우
