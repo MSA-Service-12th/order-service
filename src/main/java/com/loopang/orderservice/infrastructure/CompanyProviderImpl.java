@@ -16,13 +16,13 @@ public class CompanyProviderImpl implements CompanyProvider {
 	// TODO: FeignClient 연동 후 CompanyClient 주입
 
 	@Override
-	public Supplier getSupplier(UUID supplierId, String requirements) {
+	public Supplier getSupplier(UUID supplierId) {
 		throw new UnsupportedOperationException("CompanyClient Feign 연동이 필요합니다");
 	}
 
 	// TODO: 수령업체 담당자에 관한 추가정보 조회 시 사용자 도메인 조회
 	@Override
-	public Receiver getReceiver(UUID receiverId, UserProvider userProvider) {
+	public Receiver getReceiver(UUID receiverId, String requirements, UserProvider userProvider) {
 		throw new UnsupportedOperationException("CompanyClient Feign 연동이 필요합니다");
 	}
 }

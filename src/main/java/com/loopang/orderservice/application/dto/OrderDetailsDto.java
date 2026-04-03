@@ -25,6 +25,7 @@ public class OrderDetailsDto {
     private String receiverName;
     private UUID receiverHubId;
     private String receiverHubName;
+    private String requirements;
 
     private UUID itemId;
     private String itemName;
@@ -34,8 +35,6 @@ public class OrderDetailsDto {
     private UUID hubChargeId;
     private String hubChargeName;
     private OrderStatus status;
-
-    private String requirements;
 
     private LocalDateTime createdAt;
     private UUID createdBy;

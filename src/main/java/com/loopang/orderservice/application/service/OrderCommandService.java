@@ -39,8 +39,8 @@ public class OrderCommandService {
 		orderAccess.validateCreateAccess(userType);
 
 		// 2. 공급업체, 수령업체, 주문상품이 실재하는지 확인
-		Supplier supplier = companyProvider.getSupplier(request.getSupplierId(), request.getRequirements());
-		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), userProvider);
+		Supplier supplier = companyProvider.getSupplier(request.getSupplierId());
+		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), request.getRequirements(), userProvider);
 		ItemData itemData = itemProvider.getItem(request.getItemId());
 
 		// 3. 데이터 무결성 검증 (업체-상품 일치 여부, 허브 존재 여부 등)

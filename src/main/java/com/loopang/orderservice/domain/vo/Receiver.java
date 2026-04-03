@@ -22,8 +22,8 @@ public class Receiver {
 	@Column(name = "receiver_address", nullable = false)
 	private String address;
 
-	@Transient
-	private CompanyType type;
+	@Column(name = "requirements", nullable = false)
+	private String requirements;		// 요청사항
 
 	@AttributeOverrides({
 			@AttributeOverride(name = "hubId", column = @Column(name = "receiver_hub_id", nullable = false)),
@@ -34,17 +34,21 @@ public class Receiver {
 	private HubInfo hubInfo;
 
 	@Transient
+	private CompanyType type;
+
+	@Transient
 	private Contact contact;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Receiver(UUID receiverId, String receiverName, String address, CompanyType type) {
+	private Receiver(UUID receiverId, String receiverName, String address, String requirements, CompanyType type) {
 		this.receiverId = receiverId;
 		this.receiverName = receiverName;
 		this.address = address;
+		this.requirements = requirements;
 		this.type = type;
 	}
 
-	public static Receiver of(UUID receiverId, String receiverName, String address, String companyType) {
+	public static Receiver of(UUID receiverId, String receiverName, String address, String requirements, String companyType) {
 		CompanyType type = CompanyType.find(companyType);
 		if (type != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
@@ -53,6 +57,7 @@ public class Receiver {
 				.receiverId(receiverId)
 				.receiverName(receiverName)
 				.address(address)
+				.requirements(requirements)
 				.type(CompanyType.find(companyType))
 				.build();
 	}

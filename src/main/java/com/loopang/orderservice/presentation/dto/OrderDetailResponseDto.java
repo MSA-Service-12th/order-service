@@ -15,22 +15,27 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderDetailResponseDto {
     private UUID orderId;
+
     private UUID supplierId;
     private String supplierName;
     private UUID supplierHubId;
     private String supplierHubName;
-    private String requirements;
+
     private UUID receiverId;
     private String receiverName;
     private UUID receiverHubId;
     private String receiverHubName;
+    private String requirements;
+
     private UUID itemId;
     private String itemName;
     private Integer quantity;
     private OrderStatus status;
+
     private UUID deliveryId;
     private UUID hubChargeId;
     private String hubChargeName;
+
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
@@ -43,11 +48,11 @@ public class OrderDetailResponseDto {
                 .supplierName(details.getSupplierName())
                 .supplierHubId(details.getSupplierHubId())
                 .supplierHubName(details.getSupplierHubName())
-                .requirements(details.getRequirements())
                 .receiverId(details.getReceiverId())
                 .receiverName(details.getReceiverName())
                 .receiverHubId(details.getReceiverHubId())
                 .receiverHubName(details.getReceiverHubName())
+                .requirements(details.getRequirements())
                 .itemId(details.getItemId())
                 .itemName(details.getItemName())
                 .quantity(details.getQuantity())

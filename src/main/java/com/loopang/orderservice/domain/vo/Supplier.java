@@ -21,9 +21,6 @@ public class Supplier {
 	@Column(name = "supplier_name", nullable = false, length = 100)
 	private String supplierName;
 
-	@Column(name = "requirements", nullable = false)
-	private String requirements;		// 요청사항
-
 	@Transient
 	private CompanyType type;
 
@@ -36,14 +33,13 @@ public class Supplier {
 	private HubInfo hubInfo;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Supplier(UUID supplierId, String supplierName, String requirements, CompanyType type) {
+	private Supplier(UUID supplierId, String supplierName, CompanyType type) {
 		this.supplierId = supplierId;
 		this.supplierName = supplierName;
-		this.requirements = requirements;
 		this.type = type;
 	}
 
-	public static Supplier of(UUID supplierId, String supplierName, String requirements, String companyType) {
+	public static Supplier of(UUID supplierId, String supplierName, String companyType) {
 		CompanyType type = CompanyType.find(companyType);
 		if (type != CompanyType.SUPPLIER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
@@ -51,7 +47,6 @@ public class Supplier {
 		return Supplier.builder()
 				.supplierId(supplierId)
 				.supplierName(supplierName)
-				.requirements(requirements)
 				.type(CompanyType.find(companyType))
 				.build();
 	}

@@ -44,13 +44,13 @@ public class OrderDtoMapper {
                 .supplierName(supplier.getSupplierName())
                 .supplierHubId(supplier.getHubId())
                 .supplierHubName(supplier.getHubName())
-                .requirements(supplier.getRequirements())
 
                 // 수령업체 정보 (Receiver VO)
                 .receiverId(receiver.getReceiverId())
                 .receiverName(receiver.getReceiverName())
                 .receiverHubId(receiver.getHubId())
                 .receiverHubName(receiver.getHubName())
+                .requirements(receiver.getRequirements())
 
                 // 상품 정보 (OrderItem VO)
                 .itemId(item.getItemId())
