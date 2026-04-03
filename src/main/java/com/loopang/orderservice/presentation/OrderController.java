@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+// TODO: Security 도입 후 요청 헤더를 사용한 부분을 @AuthenticationPrinciple로 대체
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
@@ -32,9 +33,10 @@ public class OrderController {
 	@GetMapping("/{orderId}")
 	public OrderDetailResponseDto getOrder(
 			@PathVariable UUID orderId,
-			@RequestHeader(value = "X-User-Id") UUID userId,
+			@RequestParam(name = "deliveryId", required = false) UUID deliveryId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderDetailsDto details = orderQueryService.getOrder(orderId, userId, UserType.from(userRole));
+		OrderDetailsDto details = orderQueryService.getOrder(orderId, userId, UserType.from(userRole), deliveryId);
 
 		return OrderDetailResponseDto.from(details);
 	}
@@ -43,19 +45,19 @@ public class OrderController {
 	public Page<OrderSummaryResponseDto> searchOrders(
 			@ModelAttribute OrderSearchConditionDto condition,
 			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-			@RequestHeader(value = "X-User-Id") UUID userId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 
-		return orderQueryService.searchOrders(condition, pageable, userId, UserType.from(userRole))
+		return orderQueryService.searchOrders(condition, pageable, UserType.from(userRole))
 				.map(OrderSummaryResponseDto::from);
 	}
 
 	@DeleteMapping("/{orderId}")
 	public OrderDeleteResponseDto deleteOrder(
 			@PathVariable UUID orderId,
-			@RequestHeader(value = "X-User-Id") UUID userId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderDeleteCommandDto result = orderCommandService.deleteOrder(orderId, userId);
+		OrderDeleteCommandDto result = orderCommandService.deleteOrder(orderId, userId, UserType.from(userRole));
 
 		return OrderDeleteResponseDto.from(result);
 	}
