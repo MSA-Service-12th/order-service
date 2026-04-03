@@ -34,8 +34,8 @@ public class OrderQueryService {
 
 		// 권한 검증 분기 처리
 		if (userType == UserType.DELIVERY) {
-			// 배송 담당자는 배송 ID 일치 여부로 검증
-			orderAccess.validateReadAccess(userType, deliveryId, order);
+			// 배송 담당자는 배송 ID 일치 여부와 userId 등으로 검증
+			orderAccess.validateReadAccess(userId, userType, deliveryId, order);
 		} else {
 			// 마스터, 허브 관리자, 업체 담당자는 기존 로직으로 검증
 			UUID managedHubId = userProvider.getHubIdIfHubManager(userId, userType);

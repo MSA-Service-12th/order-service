@@ -12,8 +12,7 @@ public interface OrderAccess {
     void validateListSearchAccess(UserType userType);
 
     //
-    void validateReadAccess(UUID userId, UserType userType, UUID managedHubId, Order order);
-    void validateReadAccess(UserType userType, UUID deliveryId, Order order);
+    void validateReadAccess(UUID userId, UserType userType, UUID correlationId, Order order);
 
     void validateUpdateDeleteAccess(UUID userId, UserType userType, UUID managedHubId, Order order);
 }

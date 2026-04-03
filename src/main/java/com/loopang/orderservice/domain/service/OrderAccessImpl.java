@@ -26,30 +26,38 @@ public class OrderAccessImpl implements OrderAccess {
     }
 
     @Override
-    public void validateReadAccess(UUID userId, UserType userType, UUID managedHubId, Order order) {
-        if (userType == UserType.MASTER) return;
+    public void validateReadAccess(UUID userId, UserType userType, UUID correlationId, Order order) {
+        if (userType == UserType.MASTER) {
+            return;
+        }
 
-        if (userType == UserType.HUB && order.isManagedByOrInitial(userId, managedHubId)) return;
+        if (userType == UserType.HUB && order.isManagedByOrInitial(userId, correlationId)) {
+            return;
+        }
 
-        if (userType == UserType.COMPANY && order.isCreatedBy(userId)) return;
+        if (userType == UserType.COMPANY && order.isCreatedBy(userId)) {
+            return;
+        }
+
+        // 임시 로직: userId와 deliveryId가 존재하고, 주문에 할당된 배송 정보와 일치하는지 확인
+        if (userType == UserType.DELIVERY
+                && order.isCreatedBy(userId)
+                && order.isAssignedToDelivery(correlationId)) {
+            return;
+        }
 
         throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
     }
 
     @Override
-    public void validateReadAccess(UserType userType, UUID deliveryId, Order order) {
-        if (userType == UserType.MASTER) return;
+    public void validateUpdateDeleteAccess(UUID userId, UserType userType, UUID correlationId, Order order) {
+        if (userType == UserType.MASTER) {
+            return;
+        }
 
-        if (userType == UserType.DELIVERY && order.isAssignedToDelivery(deliveryId)) return;
-
-        throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
-    }
-
-    @Override
-    public void validateUpdateDeleteAccess(UUID userId, UserType userType, UUID managedHubId, Order order) {
-        if (userType == UserType.MASTER) return;
-
-        if (userType == UserType.HUB && order.isManagedByOrInitial(userId, managedHubId)) return;
+        if (userType == UserType.HUB && order.isManagedByOrInitial(userId, correlationId)) {
+            return;
+        }
 
         throw new OrderException(OrderErrorCode.ORDER_ACCESS_DENIED);
     }

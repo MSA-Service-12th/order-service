@@ -2,6 +2,7 @@ package com.loopang.orderservice.domain.vo;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 
@@ -25,7 +26,7 @@ public enum UserType {
 
 	public static UserType from(String role) {
 		return Arrays.stream(values())
-				.filter(userType -> role.endsWith(userType.name()))
+				.filter(userType -> userType.toRole().equals(role))
 				.findAny()
 				.orElse(PENDING);
 	}
