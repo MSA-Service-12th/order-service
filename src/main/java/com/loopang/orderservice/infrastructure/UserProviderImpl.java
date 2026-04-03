@@ -14,7 +14,7 @@ public class UserProviderImpl implements UserProvider {
 	// TODO: FeignClient 연동 후 UserClient 주입
 
 	@Override
-	public UserData getUser(UUID userId) {
-		throw new UnsupportedOperationException("UserClient Feign 연동이 필요합니다");
+	public UserData getUserData(UUID userId) {
+		throw new UnsupportedOperationException("UserClient Feign 연동 필수");
 	}
 }

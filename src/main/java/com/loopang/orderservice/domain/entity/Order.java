@@ -10,6 +10,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Entity
@@ -23,10 +25,10 @@ public class Order extends BaseUserEntity {
 	private UUID orderId;
 
 	@Embedded
-	private Supplier supplier;
+	private Supplier supplier;	// 공급업체
 
 	@Embedded
-	private Receiver receiver;
+	private Receiver receiver;	// 수령업체
 
 	@Embedded
 	private OrderItem orderItem;
@@ -75,6 +77,20 @@ public class Order extends BaseUserEntity {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
 		super.delete(deletedBy);
+	}
+
+	public boolean isCreatedBy(UUID userId) {
+		return this.getCreatedBy() != null && this.getCreatedBy().equals(userId);
+	}
+
+	public boolean isManagedByOrInitial(UUID userId, UUID managedHubId) {
+		return Optional.ofNullable(this.hubManager)
+				.map(hubManager -> hubManager.getHubChargeId().equals(userId))
+				.orElseGet(() -> Objects.equals(this.getSupplier().getHubId(), managedHubId));
+	}
+
+	public boolean isAssignedToDelivery(UUID deliveryId) {
+		return this.deliveryId != null && this.deliveryId.equals(deliveryId);
 	}
 
 	// 주문 상태 전이 관련: 주문 프로세스를 진행하면서 주문상태 확인 및 변경
