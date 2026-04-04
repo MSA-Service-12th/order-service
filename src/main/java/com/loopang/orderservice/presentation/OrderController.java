@@ -2,9 +2,11 @@ package com.loopang.orderservice.presentation;
 
 import com.loopang.orderservice.application.dto.*;
 import com.loopang.orderservice.application.service.OrderCommandFacade;
+import com.loopang.orderservice.application.service.OrderQueryFacade;
 import com.loopang.orderservice.application.service.OrderQueryService;
 import com.loopang.orderservice.domain.vo.UserType;
 import com.loopang.orderservice.presentation.dto.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +23,11 @@ import java.util.UUID;
 public class OrderController {
 
 	private final OrderCommandFacade orderCommandFacade;
-	private final OrderQueryService orderQueryService;
+	private final OrderQueryFacade orderQueryFacade;
 
 	@PostMapping
 	public OrderCreateResponseDto createOrder(
-			@RequestBody OrderCreateRequestDto requestDto,
+			@Valid @RequestBody OrderCreateRequestDto requestDto,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		OrderCreateResultDto result
 				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), UserType.from(userRole));
@@ -38,7 +40,7 @@ public class OrderController {
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderDetailsDto details = orderQueryService.getOrder(orderId, userId, UserType.from(userRole));
+		OrderDetailsDto details = orderQueryFacade.getOrder(orderId, userId, UserType.from(userRole));
 
 		return OrderDetailResponseDto.from(details);
 	}
@@ -49,7 +51,7 @@ public class OrderController {
 			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 
-		return orderQueryService.searchOrders(condition, pageable, UserType.from(userRole))
+		return orderQueryFacade.searchOrders(condition, pageable, UserType.from(userRole))
 				.map(OrderSummaryResponseDto::from);
 	}
 
