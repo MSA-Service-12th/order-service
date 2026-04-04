@@ -1,7 +1,7 @@
 package com.loopang.orderservice.presentation;
 
 import com.loopang.orderservice.application.dto.*;
-import com.loopang.orderservice.application.service.OrderCommandService;
+import com.loopang.orderservice.application.service.OrderCommandFacade;
 import com.loopang.orderservice.application.service.OrderQueryService;
 import com.loopang.orderservice.domain.vo.UserType;
 import com.loopang.orderservice.presentation.dto.*;
@@ -20,16 +20,15 @@ import java.util.UUID;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-	private final OrderCommandService orderCommandService;
+	private final OrderCommandFacade orderCommandFacade;
 	private final OrderQueryService orderQueryService;
 
 	@PostMapping
 	public OrderCreateResponseDto createOrder(
 			@RequestBody OrderCreateRequestDto requestDto,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderCreateResultDto result = orderCommandService.createOrder(
-				OrderCreateCommandDto.from(requestDto),
-				UserType.from(userRole));
+		OrderCreateResultDto result
+				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), UserType.from(userRole));
 
 		return OrderCreateResponseDto.from(result);
 	}
@@ -59,7 +58,7 @@ public class OrderController {
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderDeleteCommandDto result = orderCommandService.deleteOrder(orderId, userId, UserType.from(userRole));
+		OrderDeleteCommandDto result = orderCommandFacade.deleteOrder(orderId, userId, UserType.from(userRole));
 
 		return OrderDeleteResponseDto.from(result);
 	}
