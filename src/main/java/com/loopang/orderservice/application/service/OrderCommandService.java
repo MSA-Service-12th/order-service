@@ -8,10 +8,9 @@ import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
 import com.loopang.orderservice.domain.repository.OrderRepository;
 import com.loopang.orderservice.domain.service.*;
+import com.loopang.orderservice.domain.service.dto.CompanyData;
 import com.loopang.orderservice.domain.service.dto.HubData;
 import com.loopang.orderservice.domain.service.dto.ItemData;
-import com.loopang.orderservice.domain.service.dto.ReceiverData;
-import com.loopang.orderservice.domain.service.dto.SupplierData;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +43,8 @@ public class OrderCommandService {
 
 		// 2. 주문상품, 공급업체, 수령업체 조회
 		ItemData itemData = itemProvider.getItem(request.getItemId());
-		SupplierData supplierData = companyProvider.getSupplier(request.getSupplierId());
-		ReceiverData receiverData = companyProvider.getReceiver(request.getReceiverId());
+		CompanyData supplierData = companyProvider.getCompany(request.getSupplierId());
+		CompanyData receiverData = companyProvider.getCompany(request.getReceiverId());
 		orderValidator.validateCompanyAndItem(supplierData, receiverData, itemData);
 
 		// 3. 허브 정보 조회

@@ -1,13 +1,13 @@
 package com.loopang.orderservice.domain.service;
 
+import com.loopang.orderservice.domain.service.dto.CompanyData;
 import com.loopang.orderservice.domain.service.dto.HubData;
 import com.loopang.orderservice.domain.service.dto.ItemData;
-import com.loopang.orderservice.domain.service.dto.ReceiverData;
-import com.loopang.orderservice.domain.service.dto.SupplierData;
 
 public interface OrderValidator {
 
-	void validateCompanyAndItem(SupplierData supplierData, ReceiverData receiverData, ItemData itemData);
+	void validateCompanyAndItem(CompanyData supplierData, CompanyData receiverData, ItemData itemData);
+	void validateCompany(CompanyData companyData);
 	void validateItem(ItemData itemData);
 	void validateHub(HubData hubData);
 }

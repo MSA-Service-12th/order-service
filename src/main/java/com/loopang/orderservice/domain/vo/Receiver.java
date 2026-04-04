@@ -2,8 +2,8 @@ package com.loopang.orderservice.domain.vo;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
+import com.loopang.orderservice.domain.service.dto.CompanyData;
 import com.loopang.orderservice.domain.service.dto.HubData;
-import com.loopang.orderservice.domain.service.dto.ReceiverData;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,16 +51,16 @@ public class Receiver {
 		this.hubInfo = hubInfo;
 	}
 
-	public static Receiver of(ReceiverData receiverData, HubData receiverHub, String requirements) {
-		if (receiverData.companyType() != CompanyType.RECEIVER) {
+	public static Receiver of(CompanyData companyData, HubData receiverHub, String requirements) {
+		if (companyData.companyType() != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
 		}
 		return Receiver.builder()
-				.receiverId(receiverData.id())
-				.receiverName(receiverData.name())
-				.address(receiverData.address())
+				.receiverId(companyData.id())
+				.receiverName(companyData.name())
+				.address(companyData.address())
 				.requirements(requirements)
-				.type(receiverData.companyType())
+				.type(companyData.companyType())
 				.hubInfo(HubInfo.of(receiverHub.hubId(), receiverHub.hubName(), receiverHub.getAddress()))
 				.build();
 	}
