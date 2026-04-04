@@ -15,7 +15,7 @@ public class UserProviderImpl implements UserProvider {
 	private final UserFeignClient userFeignClient;
 
 	@Override
-	public UserData getUserData(UUID userId) {
+	public UserData getUser(UUID userId) {
 		return userFeignClient.getUserData(userId);
 	}
 }

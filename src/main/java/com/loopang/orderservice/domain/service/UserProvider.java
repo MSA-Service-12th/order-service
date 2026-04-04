@@ -8,13 +8,13 @@ import java.util.UUID;
 
 public interface UserProvider {
 
-    UserData getUserData(UUID userId);
+    UserData getUser(UUID userId);
 
     default UUID getHubIdIfHubManager(UUID userId, UserType userType) {
         if (userType != UserType.HUB) {
             return null;
         }
-        return Optional.ofNullable(getUserData(userId))
+        return Optional.ofNullable(getUser(userId))
                 .map(UserData::hubId)
                 .orElse(null);
     }
