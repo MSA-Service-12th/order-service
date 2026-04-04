@@ -11,8 +11,9 @@ public interface OrderAccess {
 
     void validateListSearchAccess(UserType userType);
 
-    //
+    // 3번째 인자에는 배송ID 또는 담당허브ID 추가
     void validateReadAccess(UUID userId, UserType userType, UUID correlationId, Order order);
 
-    void validateUpdateDeleteAccess(UUID userId, UserType userType, UUID managedHubId, Order order);
+    // 3번째 인자에는 배송ID 또는 담당허브ID 추가
+    void validateUpdateDeleteAccess(UUID userId, UserType userType, UUID correlationId, Order order);
 }
