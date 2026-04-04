@@ -39,9 +39,8 @@ public class OrderAccessImpl implements OrderAccess {
             return;
         }
 
-        // 임시 로직: userId와 deliveryId가 존재하고, 주문에 할당된 배송 정보와 일치하는지 확인
-        if (userType == UserType.DELIVERY
-                && order.isAssignedToDelivery(correlationId)) {
+        // 로그인한 사용자가 현재 주문에 할당된 배송담당자인지 확인(correlationId == assignedCourierId)
+        if (userType == UserType.DELIVERY && userId.equals(correlationId)) {
             return;
         }
 

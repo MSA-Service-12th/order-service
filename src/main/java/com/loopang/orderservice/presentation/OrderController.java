@@ -37,10 +37,9 @@ public class OrderController {
 	@GetMapping("/{orderId}")
 	public OrderDetailResponseDto getOrder(
 			@PathVariable UUID orderId,
-			@RequestParam(name = "deliveryId", required = false) UUID deliveryId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
-		OrderDetailsDto details = orderQueryService.getOrder(orderId, userId, UserType.from(userRole), deliveryId);
+		OrderDetailsDto details = orderQueryService.getOrder(orderId, userId, UserType.from(userRole));
 
 		return OrderDetailResponseDto.from(details);
 	}
@@ -49,7 +48,6 @@ public class OrderController {
 	public Page<OrderSummaryResponseDto> searchOrders(
 			@ModelAttribute OrderSearchConditionDto condition,
 			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 
 		return orderQueryService.searchOrders(condition, pageable, UserType.from(userRole))
