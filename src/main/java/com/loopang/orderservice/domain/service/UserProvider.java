@@ -15,7 +15,7 @@ public interface UserProvider {
             return null;
         }
         return Optional.ofNullable(getUserData(userId))
-                .map(UserData::managedHubId)
+                .map(UserData::hubId)
                 .orElse(null);
     }
 }

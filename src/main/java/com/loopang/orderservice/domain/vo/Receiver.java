@@ -2,6 +2,8 @@ package com.loopang.orderservice.domain.vo;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
+import com.loopang.orderservice.domain.service.dto.HubData;
+import com.loopang.orderservice.domain.service.dto.ReceiverData;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +21,9 @@ public class Receiver {
 	@Column(name = "receiver_name", nullable = false, length = 100)
 	private String receiverName;
 
+	@Transient
+	private CompanyType type;
+
 	@Column(name = "receiver_address", nullable = false)
 	private String address;
 
@@ -34,36 +39,30 @@ public class Receiver {
 	private HubInfo hubInfo;
 
 	@Transient
-	private CompanyType type;
-
-	@Transient
 	private Contact contact;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Receiver(UUID receiverId, String receiverName, String address, String requirements, CompanyType type) {
+	private Receiver(UUID receiverId, String receiverName, String address, String requirements, CompanyType type, HubInfo hubInfo) {
 		this.receiverId = receiverId;
 		this.receiverName = receiverName;
 		this.address = address;
 		this.requirements = requirements;
 		this.type = type;
+		this.hubInfo = hubInfo;
 	}
 
-	public static Receiver of(UUID receiverId, String receiverName, String address, String requirements, String companyType) {
-		CompanyType type = CompanyType.find(companyType);
-		if (type != CompanyType.RECEIVER) {
+	public static Receiver of(ReceiverData receiverData, HubData receiverHub, String requirements) {
+		if (receiverData.companyType() != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
 		}
 		return Receiver.builder()
-				.receiverId(receiverId)
-				.receiverName(receiverName)
-				.address(address)
+				.receiverId(receiverData.id())
+				.receiverName(receiverData.name())
+				.address(receiverData.address())
 				.requirements(requirements)
-				.type(CompanyType.find(companyType))
+				.type(receiverData.companyType())
+				.hubInfo(HubInfo.of(receiverHub.hubId(), receiverHub.hubName(), receiverHub.getAddress()))
 				.build();
-	}
-
-	public void updateHubInfo(HubInfo hubInfo) {
-		this.hubInfo = hubInfo;
 	}
 
 	public void updateContact(Contact contact) {

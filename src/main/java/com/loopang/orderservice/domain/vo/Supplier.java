@@ -2,6 +2,8 @@ package com.loopang.orderservice.domain.vo;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
+import com.loopang.orderservice.domain.service.dto.HubData;
+import com.loopang.orderservice.domain.service.dto.SupplierData;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,21 +35,22 @@ public class Supplier {
 	private HubInfo hubInfo;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Supplier(UUID supplierId, String supplierName, CompanyType type) {
+	private Supplier(UUID supplierId, String supplierName, CompanyType type, HubInfo hubInfo) {
 		this.supplierId = supplierId;
 		this.supplierName = supplierName;
 		this.type = type;
+		this.hubInfo = hubInfo;
 	}
 
-	public static Supplier of(UUID supplierId, String supplierName, String companyType) {
-		CompanyType type = CompanyType.find(companyType);
-		if (type != CompanyType.SUPPLIER) {
+	public static Supplier of(SupplierData supplierData, HubData supplierHub) {
+		if (supplierData.companyType() != CompanyType.SUPPLIER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
 		}
 		return Supplier.builder()
-				.supplierId(supplierId)
-				.supplierName(supplierName)
-				.type(CompanyType.find(companyType))
+				.supplierId(supplierData.id())
+				.supplierName(supplierData.name())
+				.type(supplierData.companyType())
+				.hubInfo(HubInfo.of(supplierHub.hubId(), supplierHub.hubName(), supplierHub.getAddress()))
 				.build();
 	}
 

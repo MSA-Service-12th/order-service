@@ -8,7 +8,10 @@ import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
 import com.loopang.orderservice.domain.repository.OrderRepository;
 import com.loopang.orderservice.domain.service.*;
+import com.loopang.orderservice.domain.service.dto.HubData;
 import com.loopang.orderservice.domain.service.dto.ItemData;
+import com.loopang.orderservice.domain.service.dto.ReceiverData;
+import com.loopang.orderservice.domain.service.dto.SupplierData;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,28 +36,29 @@ public class OrderCommandService {
 	private final ItemProvider itemProvider;
 	private final HubProvider hubProvider;
 
+	// TODO: 주문 생성 직후 주문 -> 허브 방향 이벤트 발송
 	@Transactional(propagation = Propagation.REQUIRED)
 	public OrderCreateResultDto createOrder(OrderCreateCommandDto request, UserType userType) {
 		// 1. 주문 생성 권한 검증
 		orderAccess.validateCreateAccess(userType);
 
-		// 2. 공급업체, 수령업체, 주문상품이 실재하는지 확인
-		Supplier supplier = companyProvider.getSupplier(request.getSupplierId());
-		Receiver receiver = companyProvider.getReceiver(request.getReceiverId(), request.getRequirements(), userProvider);
+		// 2. 공급업체, 수령업체, 주문상품 조회
+		SupplierData supplierData = companyProvider.getSupplier(request.getSupplierId());
+		ReceiverData receiverData = companyProvider.getReceiver(request.getReceiverId(), request.getRequirements(), userProvider);
 		ItemData itemData = itemProvider.getItem(request.getItemId());
 
-		// 3. 데이터 무결성 검증 (업체-상품 일치 여부, 허브 존재 여부 등)
-		orderValidator.validateCreateOrder(supplier, receiver, itemData);
+		// 3. 허브 정보 조회
+		HubData supplierHub = hubProvider.getHub(supplierData.getHubId());
+		HubData receiverHub = hubProvider.getHub(receiverData.getHubId());
 
-		// 4. 조회한 허브 정보를 바탕으로 공급업체/수령업체의 허브 정보 업데이트
-		HubInfo supplierHub = hubProvider.getHub(supplier.getHubId());
-		HubInfo receiverHub = hubProvider.getHub(receiver.getHubId());
-		supplier.updateHubInfo(supplierHub);
-		receiver.updateHubInfo(receiverHub);
+		// 4. 데이터 무결성 검증 (공급업체, 수령업체, 주문상품 존재 여부 및 업체-상품 일치 여부 확인)
+		orderValidator.validateOrder(supplierData, receiverData, itemData, supplierHub, receiverHub);
 
-		// 5. 주문 엔티티 생성 및 저장
-		OrderItemInfo itemInfo = OrderItemInfo.from(itemData);
-		OrderItem orderItem = OrderItem.of(itemInfo, request.getQuantity(), 1);
+		// 5. 공급업체, 수령업체, 주문상품 VO 구성 및 엔터티 생성
+		Supplier supplier = Supplier.of(supplierData, supplierHub);
+		Receiver receiver = Receiver.of(receiverData, receiverHub, request.getRequirements());
+		OrderItem orderItem = OrderItem.of(itemData, request.getQuantity(), 1);
+
 		Order order = Order.create(supplier, receiver, orderItem);
 		Order savedOrder = orderRepository.save(order);
 
