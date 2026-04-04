@@ -3,6 +3,7 @@ package com.loopang.orderservice.infrastructure;
 import com.loopang.orderservice.domain.service.ItemProvider;
 import com.loopang.orderservice.domain.service.dto.ItemData;
 import com.loopang.orderservice.domain.vo.OrderItemInfo;
+import com.loopang.orderservice.infrastructure.client.ItemFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +13,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ItemProviderImpl implements ItemProvider {
 
-	// TODO: FeignClient 연동 후 ItemClient 추가
+	private final ItemFeignClient itemFeignClient;
 
 	@Override
 	public ItemData getItem(UUID itemId) {
-		throw new UnsupportedOperationException("ItemClient Feign 연동이 필요합니다");
+		return itemFeignClient.getItemData(itemId);
 	}
 }

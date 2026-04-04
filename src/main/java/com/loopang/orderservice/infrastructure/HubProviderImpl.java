@@ -2,6 +2,7 @@ package com.loopang.orderservice.infrastructure;
 
 import com.loopang.orderservice.domain.service.HubProvider;
 import com.loopang.orderservice.domain.service.dto.HubData;
+import com.loopang.orderservice.infrastructure.client.HubFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +12,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HubProviderImpl implements HubProvider {
 
-	// TODO: FeignClient 연동 후 HubClient 주입
+	private final HubFeignClient hubFeignClient;
 
 	@Override
 	public HubData getHub(UUID hubId) {
-		throw new UnsupportedOperationException("HubClient Feign 연동이 필요합니다");
+		return hubFeignClient.getHubData(hubId);
 	}
 }
