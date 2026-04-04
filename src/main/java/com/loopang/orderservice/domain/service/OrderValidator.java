@@ -7,6 +7,7 @@ import com.loopang.orderservice.domain.service.dto.SupplierData;
 
 public interface OrderValidator {
 
-	void validateOrder(SupplierData supplier, ReceiverData receiver, ItemData itemData,
-					   HubData supplierHub, HubData receiverHub);
+	void validateCompanyAndItem(SupplierData supplierData, ReceiverData receiverData, ItemData itemData);
+	void validateItem(ItemData itemData);
+	void validateHub(HubData hubData);
 }

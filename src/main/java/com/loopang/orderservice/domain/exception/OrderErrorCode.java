@@ -9,7 +9,7 @@ public enum OrderErrorCode implements ErrorCodeSpec {
 	ORDER_INSUFFICIENT_STOCK("ORDER_002", HttpStatus.BAD_REQUEST, "주문한 상품의 재고가 부족합니다."),
 	ORDER_ACCESS_DENIED("ORDER_003", HttpStatus.FORBIDDEN, "해당 주문에 관한 권한이 없습니다."),
 	ORDER_FORBIDDEN("ORDER_004", HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
-	ORDER_UNAUTHORIZED("ORDER_O05", HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
+	ORDER_UNAUTHORIZED("ORDER_005", HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
 	ORDER_CANNOT_DELETE("ORDER_006", HttpStatus.BAD_REQUEST, "주문 삭제를 진행할 수 없는 상태입니다."),
 	ORDER_ALREADY_DELETED("ORDER_007", HttpStatus.BAD_REQUEST, "이미 삭제된 주문입니다."),
 	ORDER_INVALID_STATUS_TRANSITION("ORDER_008", HttpStatus.BAD_REQUEST, "주문상태를 변경할 수 없습니다."),

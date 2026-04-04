@@ -13,13 +13,7 @@ import com.loopang.orderservice.domain.service.dto.ItemData;
 public class OrderValidatorImpl implements OrderValidator {
 
 	@Override
-	public void validateOrder(SupplierData supplier, ReceiverData receiver, ItemData itemData,
-							  HubData supplierHub, HubData receiverHub) {
-		validateCompanyAndItem(supplier, receiver, itemData);
-		validateHub(supplierHub, receiverHub);
-	}
-
-	private void validateCompanyAndItem(SupplierData supplierData, ReceiverData receiverData, ItemData itemData) {
+	public void validateCompanyAndItem(SupplierData supplierData, ReceiverData receiverData, ItemData itemData) {
 		if (supplierData == null) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
 		}
@@ -35,12 +29,17 @@ public class OrderValidatorImpl implements OrderValidator {
 		}
 	}
 
-	private void validateHub(HubData supplierHubData, HubData receiverHubData) {
-		// 허브 정보가 존재하는지 확인
-		if (supplierHubData == null) {
-			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
+	@Override
+	public void validateItem(ItemData itemData) {
+		if (itemData == null) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_ITEM);
 		}
-		if (receiverHubData == null) {
+	}
+
+	@Override
+	public void validateHub(HubData hubData) {
+		// 허브 정보가 존재하는지 확인
+		if (hubData == null) {
 			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
 		}
 	}

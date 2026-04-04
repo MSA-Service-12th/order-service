@@ -42,17 +42,15 @@ public class OrderCommandService {
 		// 1. 주문 생성 권한 검증
 		orderAccess.validateCreateAccess(userType);
 
-		// 2. 공급업체, 수령업체, 주문상품 조회
+		// 2. 주문상품, 공급업체, 수령업체 조회
+		ItemData itemData = itemProvider.getItem(request.getItemId());
 		SupplierData supplierData = companyProvider.getSupplier(request.getSupplierId());
 		ReceiverData receiverData = companyProvider.getReceiver(request.getReceiverId());
-		ItemData itemData = itemProvider.getItem(request.getItemId());
+		orderValidator.validateCompanyAndItem(supplierData, receiverData, itemData);
 
 		// 3. 허브 정보 조회
 		HubData supplierHub = hubProvider.getHub(supplierData.getHubId());
 		HubData receiverHub = hubProvider.getHub(receiverData.getHubId());
-
-		// 4. 데이터 무결성 검증 (공급업체, 수령업체, 주문상품 존재 여부 및 업체-상품 일치 여부 확인)
-		orderValidator.validateOrder(supplierData, receiverData, itemData, supplierHub, receiverHub);
 
 		// 5. 공급업체, 수령업체, 주문상품 VO 구성 및 엔터티 생성
 		Supplier supplier = Supplier.of(supplierData, supplierHub);
