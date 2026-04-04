@@ -67,7 +67,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 		}
 
 		// 통합 키워드 검색 (공급업체명, 수령업체명, 상품명)
-		String keyword = condition.getKeyword();
+		String keyword = condition.keyword();
 		if (StringUtils.hasText(keyword)) {
 			booleanBuilder.and(
 					order.supplier.supplierName.containsIgnoreCase(keyword)
@@ -77,20 +77,20 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
 		}
 
 		// 개별 필터 검색
-		if (StringUtils.hasText(condition.getSupplierName())) {
-			booleanBuilder.and(order.supplier.supplierName.containsIgnoreCase(condition.getSupplierName()));
+		if (StringUtils.hasText(condition.supplierName())) {
+			booleanBuilder.and(order.supplier.supplierName.containsIgnoreCase(condition.supplierName()));
 		}
 
-		if (StringUtils.hasText(condition.getReceiverName())) {
-			booleanBuilder.and(order.receiver.receiverName.containsIgnoreCase(condition.getReceiverName()));
+		if (StringUtils.hasText(condition.receiverName())) {
+			booleanBuilder.and(order.receiver.receiverName.containsIgnoreCase(condition.receiverName()));
 		}
 
-		if (StringUtils.hasText(condition.getItemName())) {
-			booleanBuilder.and(order.orderItem.orderItemInfo.itemName.containsIgnoreCase(condition.getItemName()));
+		if (StringUtils.hasText(condition.itemName())) {
+			booleanBuilder.and(order.orderItem.orderItemInfo.itemName.containsIgnoreCase(condition.itemName()));
 		}
 
-		if (condition.getStatus() != null) {
-			booleanBuilder.and(order.status.eq(condition.getStatus()));
+		if (condition.status() != null) {
+			booleanBuilder.and(order.status.eq(condition.status()));
 		}
 
 		return booleanBuilder;
