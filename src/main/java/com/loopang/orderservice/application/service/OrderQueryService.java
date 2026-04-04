@@ -11,5 +11,5 @@ import java.util.UUID;
 
 public interface OrderQueryService {
 	OrderDetailsDto getOrder(UUID orderId, UUID userId, UserType userType);
-	Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UserType userType);
+	Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userType);
 }

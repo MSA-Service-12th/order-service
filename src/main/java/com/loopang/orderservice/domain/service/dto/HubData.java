@@ -8,6 +8,6 @@ public record HubData(
 		HubAddressData address
 ) {
 	public String getAddress() {
-		return address.fullAddress();
+		return address != null ? address.fullAddress() : null;
 	}
 }

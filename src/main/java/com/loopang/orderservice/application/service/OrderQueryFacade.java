@@ -30,13 +30,8 @@ public class OrderQueryFacade implements OrderQueryService {
 	public OrderDetailsDto getOrder(UUID orderId, UUID userId, UserType userType) {
 		// 1. 주문 정보 조회 (DB)
 		Order order = orderQueryCore.findById(orderId);
-
 		// 2. 인가 정보 확보 (원격 조회 - 트랜잭션 외부)
-		UUID correlationId = null;
-		switch (userType) {
-			case UserType.HUB -> correlationId = userProvider.getHubIdIfHubManager(userId, userType);
-			case UserType.DELIVERY -> correlationId = deliveryProvider.getAssignedCourier(order, userId, userType);
-		}
+		UUID correlationId = getCorrelationId(userId, userType, order);
 
 		// 3. 권한 검증
 		orderAccess.validateReadAccess(userId, userType, correlationId, order);
@@ -46,12 +41,23 @@ public class OrderQueryFacade implements OrderQueryService {
 	}
 
 	@Override
-	public Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UserType userType) {
+	public Page<OrderSummaryDto> searchOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userType) {
 		// 목록 검색 권한 체크
 		orderAccess.validateListSearchAccess(userType);
 
+		UUID correlationId = getCorrelationId(userId, userType, null);
+
 		// 실제 조회 위임 및 변환
-		return orderQueryCore.findAllOrders(condition, pageable)
+		return orderQueryCore.findAllOrders(condition, pageable, userId, userType, correlationId)
 				.map(orderDtoMapper::toSummaryDto);
+	}
+
+	private UUID getCorrelationId(UUID userId, UserType userType, Order order) {
+		return switch (userType) {
+			case HUB -> userProvider.getHubIdIfHubManager(userId, userType);
+			case DELIVERY -> (order != null) ? deliveryProvider.getAssignedCourier(order, userId, userType) : null;
+			case COMPANY -> (order != null) ? order.getCreatedBy() : userId;
+			default -> null;	// 모두 통과하거나(MASTER), 모두 막히거나(PENDING)
+		};
 	}
 }

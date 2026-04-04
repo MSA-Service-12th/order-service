@@ -13,7 +13,7 @@ public class DeliveryFeignClientFallbackFactory implements FallbackFactory<Deliv
 	@Override
 	public DeliveryFeignClient create(Throwable cause) {
 		return id -> {
-			log.error("[Delivery service Fallback] Hub ID: {} 조회 중 장애 발생, 사유: {}",
+			log.error("[Delivery service Fallback] Delivery ID: {} 조회 중 장애 발생, 사유: {}",
 					id, cause.getMessage(), cause); // 발생위치 -> 파생위치를 알려줌 stackTrace
 			throw new OrderException(
 					HttpStatus.SERVICE_UNAVAILABLE,

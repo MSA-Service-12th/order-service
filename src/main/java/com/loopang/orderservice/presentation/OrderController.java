@@ -49,9 +49,10 @@ public class OrderController {
 	public Page<OrderSummaryResponseDto> searchOrders(
 			@ModelAttribute OrderSearchConditionDto condition,
 			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 
-		return orderQueryFacade.searchOrders(condition, pageable, UserType.from(userRole))
+		return orderQueryFacade.searchOrders(condition, pageable, userId, UserType.from(userRole))
 				.map(OrderSummaryResponseDto::from);
 	}
 

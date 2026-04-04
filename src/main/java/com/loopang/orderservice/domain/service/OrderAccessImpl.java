@@ -6,6 +6,7 @@ import com.loopang.orderservice.domain.exception.OrderException;
 import com.loopang.orderservice.domain.vo.UserType;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -40,7 +41,7 @@ public class OrderAccessImpl implements OrderAccess {
         }
 
         // 로그인한 사용자가 현재 주문에 할당된 배송담당자인지 확인(correlationId == assignedCourierId)
-        if (userType == UserType.DELIVERY && userId.equals(correlationId)) {
+        if (userType == UserType.DELIVERY && Objects.equals(userId, correlationId)) {
             return;
         }
 

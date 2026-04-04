@@ -4,6 +4,7 @@ import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
 import com.loopang.orderservice.domain.repository.OrderQueryRepository;
+import com.loopang.orderservice.domain.vo.UserType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public class OrderQueryCore {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<Order> findAllOrders(OrderSearchConditionDto condition, Pageable pageable) {
-		return orderQueryRepository.findAllOrders(condition, pageable);
+	public Page<Order> findAllOrders(OrderSearchConditionDto condition, Pageable pageable, UUID userId, UserType userType, UUID correlationId) {
+		return orderQueryRepository.findAllOrders(condition, pageable, userId, userType, correlationId);
 	}
 }

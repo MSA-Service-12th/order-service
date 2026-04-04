@@ -11,7 +11,8 @@ public interface UserProvider {
     UserData getUser(UUID userId);
 
     default UUID getHubIdIfHubManager(UUID userId, UserType userType) {
-        if (userType != UserType.HUB) {
+        UserData user = getUser(userId);
+        if (userType != UserType.HUB || user == null) {
             return null;
         }
         return Optional.ofNullable(getUser(userId))
