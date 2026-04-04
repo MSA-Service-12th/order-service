@@ -72,6 +72,9 @@ public class Order extends BaseUserEntity {
 	}
 
 	public void updateQuantity(Integer quantity) {
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
+		}
 		if (this.status != OrderStatus.PENDING &&
 				this.status != OrderStatus.WAIT_TO_APPROVAL) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION); // 상태 변경 불가 예외
