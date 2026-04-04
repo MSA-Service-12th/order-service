@@ -44,7 +44,7 @@ public class OrderCommandService {
 
 		// 2. 공급업체, 수령업체, 주문상품 조회
 		SupplierData supplierData = companyProvider.getSupplier(request.getSupplierId());
-		ReceiverData receiverData = companyProvider.getReceiver(request.getReceiverId(), request.getRequirements(), userProvider);
+		ReceiverData receiverData = companyProvider.getReceiver(request.getReceiverId());
 		ItemData itemData = itemProvider.getItem(request.getItemId());
 
 		// 3. 허브 정보 조회

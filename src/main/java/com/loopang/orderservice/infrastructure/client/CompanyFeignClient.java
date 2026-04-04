@@ -1,7 +1,19 @@
 package com.loopang.orderservice.infrastructure.client;
 
-// FeignClient 사용: 지정한 업체ID에 해당하는 공급업체, 수령업체의 상세정보 조회
+import com.loopang.orderservice.domain.service.dto.ReceiverData;
+import com.loopang.orderservice.domain.service.dto.SupplierData;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.UUID;
+
+@FeignClient(name = "company-service", fallbackFactory = CompanyFeignClientFallbackFactory.class)
 public interface CompanyFeignClient {
 
-	// TODO: FeignClient 연동
+	@GetMapping("/companies/{id}")
+	SupplierData getSupplier(@PathVariable("id") UUID supplierId);
+
+	@GetMapping("/companies/{id}")
+	ReceiverData getReceiver(@PathVariable("id") UUID receiverId);
 }
