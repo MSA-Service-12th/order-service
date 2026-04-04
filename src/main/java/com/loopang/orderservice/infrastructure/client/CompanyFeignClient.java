@@ -11,9 +11,9 @@ import java.util.UUID;
 @FeignClient(name = "company-service", fallbackFactory = CompanyFeignClientFallbackFactory.class)
 public interface CompanyFeignClient {
 
-	@GetMapping("/companies/{id}")
+	@GetMapping("/api/companies/{id}")
 	SupplierData getSupplier(@PathVariable("id") UUID supplierId);
 
-	@GetMapping("/companies/{id}")
+	@GetMapping("/api/companies/{id}")
 	ReceiverData getReceiver(@PathVariable("id") UUID receiverId);
 }
