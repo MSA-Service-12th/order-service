@@ -1,0 +1,71 @@
+package com.loopang.orderservice.application.service;
+
+import com.loopang.orderservice.application.dto.OrderCreateCommandDto;
+import com.loopang.orderservice.application.dto.OrderCreateResultDto;
+import com.loopang.orderservice.application.dto.OrderDeleteCommandDto;
+import com.loopang.orderservice.domain.entity.Order;
+import com.loopang.orderservice.domain.service.*;
+import com.loopang.orderservice.domain.service.dto.CompanyData;
+import com.loopang.orderservice.domain.service.dto.HubData;
+import com.loopang.orderservice.domain.service.dto.ItemData;
+import com.loopang.orderservice.domain.vo.OrderItem;
+import com.loopang.orderservice.domain.vo.Receiver;
+import com.loopang.orderservice.domain.vo.Supplier;
+import com.loopang.orderservice.domain.vo.UserType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.UUID;
+
+@Component
+@RequiredArgsConstructor
+public class OrderCommandFacade implements OrderCommandService {
+
+	private final OrderValidator orderValidator;
+	private final OrderDtoMapper orderDtoMapper;
+	private final OrderAccess orderAccess;
+
+	private final CompanyProvider companyProvider;
+	private final ItemProvider itemProvider;
+	private final HubProvider hubProvider;
+	private final UserProvider userProvider;
+	private final OrderCommandCore orderCommandCore;
+
+	@Override
+	public OrderCreateResultDto createOrder(OrderCreateCommandDto request, UserType userType) {
+		// 1. 주문 생성 권한 검증
+		orderAccess.validateCreateAccess(userType);
+
+		// 2. 원격 조회 및 검증 (트랜잭션 외부)
+		ItemData itemData = itemProvider.getItem(request.getItemId());
+		CompanyData supplierData = companyProvider.getCompany(request.getSupplierId());
+		CompanyData receiverData = companyProvider.getCompany(request.getReceiverId());
+		orderValidator.validateCompanyAndItem(supplierData, receiverData, itemData);
+
+		HubData supplierHub = hubProvider.getHub(supplierData.getHubId());
+		HubData receiverHub = hubProvider.getHub(receiverData.getHubId());
+
+		// 3. VO 구성
+		Supplier supplier = Supplier.of(supplierData, supplierHub);
+		Receiver receiver = Receiver.of(receiverData, receiverHub, request.getRequirements());
+		OrderItem orderItem = OrderItem.of(itemData, request.getQuantity(), 1);
+
+		// 4. 핵심 로직 호출 (트랜잭션 진입)
+		Order savedOrder = orderCommandCore.saveOrder(supplier, receiver, orderItem);
+
+		// TODO: Kafka 이벤트 발행 위치
+
+		return orderDtoMapper.toCreateResultDto(savedOrder);
+	}
+
+	@Override
+	public OrderDeleteCommandDto deleteOrder(UUID orderId, UUID userId, UserType userType) {
+		// 원격 조회 (트랜잭션 외부)
+		UUID managedHubId = userProvider.getHubIdIfHubManager(userId, userType);
+
+		// 핵심 로직 호출 (트랜잭션 진입)
+		Order order = orderCommandCore.deleteOrder(orderId, userId, managedHubId, userType);
+
+		return OrderDeleteCommandDto.from(order);
+	}
+}

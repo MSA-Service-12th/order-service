@@ -2,8 +2,7 @@ package com.loopang.orderservice.domain.service.dto;
 
 import java.util.UUID;
 
-public record ItemData(
-		UUID itemId,
-		String itemName,
-		UUID companyId
+public record HubInfoData(
+		UUID hubId,
+		String hubName
 ) { }

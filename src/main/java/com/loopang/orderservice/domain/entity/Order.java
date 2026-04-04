@@ -10,11 +10,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @Table(name = "p_order")
+@SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseUserEntity {
 
@@ -23,10 +28,10 @@ public class Order extends BaseUserEntity {
 	private UUID orderId;
 
 	@Embedded
-	private Supplier supplier;
+	private Supplier supplier;	// 공급업체
 
 	@Embedded
-	private Receiver receiver;
+	private Receiver receiver;	// 수령업체
 
 	@Embedded
 	private OrderItem orderItem;
@@ -67,14 +72,55 @@ public class Order extends BaseUserEntity {
 	}
 
 	public void updateQuantity(Integer quantity) {
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
+		}
+		if (this.status != OrderStatus.PENDING &&
+				this.status != OrderStatus.WAIT_TO_APPROVAL) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION); // 상태 변경 불가 예외
+		}
 		this.orderItem.updateQuantity(quantity);
 	}
 
 	public void delete(UUID deletedBy) {
-		if (this.status != OrderStatus.PENDING && this.status != OrderStatus.CANCELLED) {
+		if (this.status != OrderStatus.PENDING &&
+				this.status != OrderStatus.WAIT_TO_APPROVAL) {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
+		}
 		super.delete(deletedBy);
+	}
+
+	// 주문 인가 관련
+
+	public boolean isCreatedBy(UUID userId) {
+		return this.getCreatedBy() != null && this.getCreatedBy().equals(userId);
+	}
+
+	public boolean isManagedByOrInitial(UUID userId, UUID managedHubId) {
+		// 1. 직접 담당자로 지정된 경우
+		if (this.hubManager != null && Objects.equals(this.hubManager.getHubChargeId(), userId)) {
+			return true;
+		}
+		if (managedHubId == null) {
+			return false;
+		}
+
+		// 2. 담당자가 아니더라도 해당 주문의 출발 허브 또는 도착 허브의 관리자인 경우
+		UUID supplierHubId = Optional.ofNullable(this.supplier)
+				.map(Supplier::getHubId)
+				.orElse(null);
+		UUID receiverHubId = Optional.ofNullable(this.receiver)
+				.map(Receiver::getHubId)
+				.orElse(null);
+
+		return Objects.equals(supplierHubId, managedHubId) || Objects.equals(receiverHubId, managedHubId);
+	}
+
+	public boolean isAssignedToDelivery(UUID deliveryId) {
+		return this.deliveryId != null && this.deliveryId.equals(deliveryId);
 	}
 
 	// 주문 상태 전이 관련: 주문 프로세스를 진행하면서 주문상태 확인 및 변경
@@ -106,6 +152,9 @@ public class Order extends BaseUserEntity {
 	}
 
 	private void validateTransition(OrderStatus next) {
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
+		}
 		if (!this.status.checkTransition(next)) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION);
 		}

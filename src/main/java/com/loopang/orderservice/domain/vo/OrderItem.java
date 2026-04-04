@@ -2,10 +2,13 @@ package com.loopang.orderservice.domain.vo;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
+import com.loopang.orderservice.domain.service.dto.ItemData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import lombok.*;
+
+import java.util.UUID;
 
 @Embeddable
 @Getter
@@ -22,9 +25,21 @@ public class OrderItem {
 	@Column(name = "item_number", nullable = false)
 	private Integer itemNumber = 1;
 
-	public static OrderItem of(OrderItemInfo itemInfo, int quantity, int itemNumber) {
+
+	@Builder(access = AccessLevel.PRIVATE)
+	private OrderItem(ItemData itemData, int quantity, int itemNumber) {
+		this.orderItemInfo = OrderItemInfo.from(itemData);
+		this.quantity = quantity;
+		this.itemNumber = itemNumber;
+	}
+
+	public static OrderItem of(ItemData itemData, int quantity, int itemNumber) {
 		checkQuantity(quantity);
-		return new OrderItem(itemInfo, quantity, Math.max(itemNumber, 1));
+		return OrderItem.builder()
+				.itemData(itemData)
+				.quantity(quantity)
+				.itemNumber(itemNumber)
+				.build();
 	}
 
 	public void updateQuantity(Integer quantity) {
@@ -36,5 +51,13 @@ public class OrderItem {
 		if (quantity == null || quantity < 1) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_QUANTITY);
 		}
+	}
+
+	public UUID getItemId() {
+		return this.orderItemInfo.getItemId();
+	}
+
+	public String getItemName() {
+		return this.orderItemInfo.getItemName();
 	}
 }

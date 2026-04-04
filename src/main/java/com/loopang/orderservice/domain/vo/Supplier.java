@@ -2,6 +2,8 @@ package com.loopang.orderservice.domain.vo;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
+import com.loopang.orderservice.domain.service.dto.CompanyData;
+import com.loopang.orderservice.domain.service.dto.HubData;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,9 +23,6 @@ public class Supplier {
 	@Column(name = "supplier_name", nullable = false, length = 100)
 	private String supplierName;
 
-	@Column(name = "requirements", nullable = false)
-	private String requirements;		// 요청사항
-
 	@Transient
 	private CompanyType type;
 
@@ -36,25 +35,25 @@ public class Supplier {
 	private HubInfo hubInfo;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Supplier(UUID supplierId, String supplierName, String requirements, CompanyType type) {
+	private Supplier(UUID supplierId, String supplierName, CompanyType type, HubInfo hubInfo) {
 		this.supplierId = supplierId;
 		this.supplierName = supplierName;
-		this.requirements = requirements;
 		this.type = type;
+		this.hubInfo = hubInfo;
 	}
 
-	public static Supplier of(UUID supplierId, String supplierName, String requirements, String companyType) {
-		CompanyType type = CompanyType.find(companyType);
-		if (type != CompanyType.SUPPLIER) {
+	public static Supplier of(CompanyData companyData, HubData supplierHub) {
+		if (companyData.companyType() != CompanyType.SUPPLIER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
 		}
 		return Supplier.builder()
-				.supplierId(supplierId)
-				.supplierName(supplierName)
-				.requirements(requirements)
-				.type(CompanyType.find(companyType))
+				.supplierId(companyData.id())
+				.supplierName(companyData.name())
+				.type(companyData.companyType())
+				.hubInfo(HubInfo.of(supplierHub.hubId(), supplierHub.hubName(), supplierHub.getAddress()))
 				.build();
 	}
+
 
 	public void updateHubInfo(HubInfo hubInfo) {
 		this.hubInfo = hubInfo;
@@ -65,5 +64,12 @@ public class Supplier {
 			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
 		}
 		return this.hubInfo.getHubId();
+	}
+
+	public String getHubName() {
+		if (this.hubInfo == null) {
+			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
+		}
+		return this.hubInfo.getHubName();
 	}
 }

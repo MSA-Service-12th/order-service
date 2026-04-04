@@ -1,9 +1,9 @@
 package com.loopang.orderservice.infrastructure;
 
 import com.loopang.orderservice.domain.service.CompanyProvider;
-import com.loopang.orderservice.domain.service.UserProvider;
-import com.loopang.orderservice.domain.vo.Receiver;
-import com.loopang.orderservice.domain.vo.Supplier;
+import com.loopang.orderservice.domain.service.OrderValidator;
+import com.loopang.orderservice.domain.service.dto.CompanyData;
+import com.loopang.orderservice.infrastructure.client.CompanyFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,16 +13,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CompanyProviderImpl implements CompanyProvider {
 
-	// TODO: FeignClient 연동 후 CompanyClient 주입
+	private final CompanyFeignClient companyFeignClient;
+	private final OrderValidator orderValidator;
 
 	@Override
-	public Supplier getSupplier(UUID supplierId, String requirements) {
-		throw new UnsupportedOperationException("CompanyClient Feign 연동이 필요합니다");
-	}
+	public CompanyData getCompany(UUID companyId) {
+		CompanyData companyData = companyFeignClient.getCompanyData(companyId);
 
-	// TODO: 수령업체 담당자에 관한 추가정보 조회 시 사용자 도메인 조회
-	@Override
-	public Receiver getReceiver(UUID receiverId, UserProvider userProvider) {
-		throw new UnsupportedOperationException("CompanyClient Feign 연동이 필요합니다");
+		orderValidator.validateCompany(companyData);
+
+		return companyData;
 	}
 }
+

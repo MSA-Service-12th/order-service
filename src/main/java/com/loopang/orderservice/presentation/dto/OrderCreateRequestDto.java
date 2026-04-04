@@ -1,6 +1,5 @@
 package com.loopang.orderservice.presentation.dto;
 
-import com.loopang.orderservice.application.dto.OrderCreateInputDto;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,9 +29,4 @@ public class OrderCreateRequestDto {
 
 	@NotBlank(message = "요청사항은 필수입니다.")
 	private String requirements;
-
-
-	public OrderCreateInputDto toDto() {
-		return new OrderCreateInputDto(supplierId, receiverId, itemId, quantity, requirements);
-	}
 }
