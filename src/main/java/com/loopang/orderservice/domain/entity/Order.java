@@ -84,6 +84,9 @@ public class Order extends BaseUserEntity {
 				this.status != OrderStatus.WAIT_TO_APPROVAL) {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
+		if (this.isDeleted()) {
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
+		}
 		super.delete(deletedBy);
 	}
 
@@ -147,7 +150,7 @@ public class Order extends BaseUserEntity {
 
 	private void validateTransition(OrderStatus next) {
 		if (this.isDeleted()) {
-			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE); // 적절한 '삭제된 주문' 관련 에러 코드로 대체 가능
+			throw new OrderException(OrderErrorCode.ORDER_ALREADY_DELETED);
 		}
 		if (!this.status.checkTransition(next)) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION);
