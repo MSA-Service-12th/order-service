@@ -1,8 +1,9 @@
 package com.loopang.orderservice.infrastructure.client;
 
-import jakarta.ws.rs.InternalServerErrorException;
+import com.loopang.orderservice.domain.exception.OrderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -12,9 +13,13 @@ public class UserFeignClientFallbackFactory implements FallbackFactory<UserFeign
 	@Override
 	public UserFeignClient create(Throwable cause) {
 		return id -> {
-			log.error("[User service Fallback] ID: {} 조회 중 장애 발생, 사유: {}",
+			log.error("[User service Fallback] User ID: {} 조회 중 장애 발생, 사유: {}",
 					id, cause.getMessage(), cause); // 발생위치 -> 파생위치를 알려줌 stackTrace
-			throw new InternalServerErrorException("User Service API 요청 처리 실패, 잠시 후 다시 시도해주세요.");
+			throw new OrderException(
+					HttpStatus.SERVICE_UNAVAILABLE,
+					"User Service API 요청 처리 실패, 잠시 후 다시 시도해주세요.",
+					"user-service"
+			);
 		};
 	}
 }
