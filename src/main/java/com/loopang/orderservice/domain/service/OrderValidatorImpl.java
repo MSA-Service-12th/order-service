@@ -2,10 +2,8 @@ package com.loopang.orderservice.domain.service;
 
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
-import com.loopang.orderservice.domain.vo.OrderItemInfo;
 import com.loopang.orderservice.domain.vo.Receiver;
 import com.loopang.orderservice.domain.vo.Supplier;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 import com.loopang.orderservice.domain.service.dto.ItemData;
