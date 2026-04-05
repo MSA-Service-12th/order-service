@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 .env
-.kafka.server.truststore.jks
+**/ssl/kafka.server.truststore.jks
 
 ### STS ###
 .apt_generated
