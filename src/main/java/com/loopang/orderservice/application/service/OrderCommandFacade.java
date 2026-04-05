@@ -104,4 +104,9 @@ public class OrderCommandFacade implements OrderCommandService {
 	public void handleInventoryResult(HubUpdatePayload payload) {
 		orderCommandCore.handleInventoryCheckResult(payload.orderId(), payload.balance());
 	}
+
+	@Override
+	public void handleInventoryCheckFailure(HubUpdatePayload payload) {
+		orderCommandCore.handleInventoryCheckResult(payload.orderId(), -1); // 강제 취소 (balance < 0 유도)
+	}
 }
