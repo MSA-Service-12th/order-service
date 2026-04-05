@@ -67,10 +67,6 @@ public class Receiver {
 				.build();
 	}
 
-	public void updateContact(Contact contact) {
-		this.contact = contact;
-	}
-
 	public UUID getHubId() {
 		if (this.hubInfo == null) {
 			throw new OrderException(OrderErrorCode.ORDER_HUB_NOT_FOUND);
