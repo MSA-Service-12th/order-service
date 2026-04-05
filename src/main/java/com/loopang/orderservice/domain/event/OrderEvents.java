@@ -8,4 +8,5 @@ public interface OrderEvents {
 
 	void pending(Order order);
 	void accepted(Order order);
+	void cancelled(Order order);
 }

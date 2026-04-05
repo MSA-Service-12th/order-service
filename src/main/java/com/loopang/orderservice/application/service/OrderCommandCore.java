@@ -44,6 +44,32 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
+	public void handleInventoryCheckResult(UUID orderId, Integer balance) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+
+		if (balance < 0) {
+			order.cancel();
+		} else {
+			order.waitToApproval();
+		}
+	}
+
+	@Transactional
+	public Order cancelOrder(UUID orderId, UUID userId, UUID managedHubId, UserType userType) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+
+		// 허브 관리자 또는 마스터 관리자 권한 확인
+		orderAccess.validateUpdateDeleteAccess(userId, userType, managedHubId, order);
+
+		// 주문 취소 처리 (상태 변경: PENDING, WAIT_TO_APPROVAL -> CANCELLED)
+		order.cancel();
+
+		return order;
+	}
+
+	@Transactional
 	public Order deleteOrder(UUID orderId, UUID userId, UUID managedHubId, UserType userType) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));

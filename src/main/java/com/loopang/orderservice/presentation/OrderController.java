@@ -73,4 +73,12 @@ public class OrderController {
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		orderCommandFacade.approveOrder(orderId, userId, UserType.from(userRole));
 	}
+
+	@PatchMapping("/{orderId}/cancel")
+	public void cancelOrder(
+			@PathVariable UUID orderId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
+			@RequestHeader(value = "X-User-Role") String userRole) {
+		orderCommandFacade.cancelOrder(orderId, userId, UserType.from(userRole));
+	}
 }

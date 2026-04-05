@@ -46,6 +46,18 @@ public class OrderEventsImpl implements OrderEvents {
 		Events.trigger(outboxEvent);
 	}
 
+	@Override
+	public void cancelled(Order order) {
+		OutboxEvent outboxEvent = OutboxEvent.withCorrelation(
+				getTraceId(),
+				"ORDER",
+				order.getOrderId(),
+				properties.pending(), // 허브로 보낼 때는 pending 토픽을 공유할 수 있음 (상태값으로 분기)
+				OrderPendingPayload.from(order)
+		);
+		Events.trigger(outboxEvent);
+	}
+
 	private String getTraceId() {
 		String traceId = MDC.get("traceId");
 		return StringUtils.hasText(traceId) ? traceId : UUID.randomUUID().toString();
