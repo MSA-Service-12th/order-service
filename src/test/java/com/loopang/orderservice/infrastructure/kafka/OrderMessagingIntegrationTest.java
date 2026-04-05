@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+// Eureka Server, Config Server 실행 중인 상태일 때 정상적으로 테스트 가능
 @SpringBootTest
 @ActiveProfiles("test")
 @EmbeddedKafka(partitions = 1, topics = {"order-pending-topic", "hub-update-topic"})
