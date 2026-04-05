@@ -77,7 +77,7 @@ class OrderCommandServiceTest {
         given(orderRepository.save(any(Order.class))).willReturn(mockOrder);
 
         // when
-        orderCommandFacade.createOrder(request, UserType.COMPANY);
+        orderCommandFacade.createOrder(request, "test-slack-id", UserType.COMPANY);
 
         // then
         verify(orderRepository).save(any(Order.class));

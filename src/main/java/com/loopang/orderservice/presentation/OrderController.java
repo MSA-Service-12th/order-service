@@ -28,9 +28,10 @@ public class OrderController {
 	@PostMapping
 	public OrderCreateResponseDto createOrder(
 			@Valid @RequestBody OrderCreateRequestDto requestDto,
-			@RequestHeader(value = "X-User-Role") String userRole) {
+			@RequestHeader(value = "X-User-Role") String userRole,
+			@RequestHeader(value = "X-User-Slack-Id") String slackId) {
 		OrderCreateResultDto result
-				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), UserType.from(userRole));
+				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), slackId, UserType.from(userRole));
 
 		return OrderCreateResponseDto.from(result);
 	}

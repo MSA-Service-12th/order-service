@@ -36,7 +36,7 @@ public class OrderCommandFacade implements OrderCommandService {
 	private final OrderEvents orderEvents;
 
 	@Override
-	public OrderCreateResultDto createOrder(OrderCreateCommandDto request, UserType userType) {
+	public OrderCreateResultDto createOrder(OrderCreateCommandDto request, String slackId, UserType userType) {
 		// 1. 주문 생성 권한 검증
 		orderAccess.validateCreateAccess(userType);
 
@@ -51,7 +51,7 @@ public class OrderCommandFacade implements OrderCommandService {
 
 		// 3. VO 구성
 		Supplier supplier = Supplier.of(supplierData, supplierHub);
-		Receiver receiver = Receiver.of(receiverData, receiverHub, request.getRequirements());
+		Receiver receiver = Receiver.of(receiverData, receiverHub, request.getRequirements(), slackId);
 		OrderItem orderItem = OrderItem.of(itemData, request.getQuantity(), 1);
 
 		// 4. 핵심 로직 호출 (트랜잭션 진입)

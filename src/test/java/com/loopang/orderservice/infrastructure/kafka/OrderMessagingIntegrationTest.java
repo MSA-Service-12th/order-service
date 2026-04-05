@@ -104,7 +104,7 @@ public class OrderMessagingIntegrationTest {
         OrderCreateCommandDto request = OrderCreateCommandDto.from(requestDto);
 
         // when
-        orderCommandFacade.createOrder(request, UserType.COMPANY);
+        orderCommandFacade.createOrder(request, "test-slack-id", UserType.COMPANY);
 
         // then: Outbox에 데이터가 생성되었는지 확인
         List<Outbox> outboxes = outboxRepository.findAll();
@@ -130,7 +130,8 @@ public class OrderMessagingIntegrationTest {
         Receiver receiver = Receiver.of(
                 new CompanyData(UUID.randomUUID(), "R", CompanyType.RECEIVER, new HubInfoData(UUID.randomUUID(), "RH"), "Addr"),
                 new HubData(UUID.randomUUID(), "RH", new HubAddressData("Addr")),
-                "Req"
+                "Req",
+                "test-slack-id"
         );
         OrderItem item = OrderItem.of(new ItemData(UUID.randomUUID(), "Item", UUID.randomUUID()), 10, 1);
         
