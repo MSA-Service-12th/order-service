@@ -5,6 +5,11 @@ spring:
     activate:
       on-profile: test
 
+  cloud:
+    config:
+      discovery:
+        enabled: false
+
   main:
     allow-bean-definition-overriding: true
 
@@ -38,6 +43,11 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     listener:
       ack-mode: manual
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
 
 # 토픽 설정
 topics:

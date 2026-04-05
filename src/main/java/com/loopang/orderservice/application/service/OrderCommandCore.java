@@ -3,11 +3,7 @@ package com.loopang.orderservice.application.service;
 import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.repository.OrderRepository;
 import com.loopang.orderservice.domain.service.OrderAccess;
-import com.loopang.orderservice.domain.vo.HubManager;
-import com.loopang.orderservice.domain.vo.OrderItem;
-import com.loopang.orderservice.domain.vo.Receiver;
-import com.loopang.orderservice.domain.vo.Supplier;
-import com.loopang.orderservice.domain.vo.UserType;
+import com.loopang.orderservice.domain.vo.*;
 import com.loopang.orderservice.domain.exception.OrderErrorCode;
 import com.loopang.orderservice.domain.exception.OrderException;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +44,7 @@ public class OrderCommandCore {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
-		if (balance < 0) {
+		if (balance < 0 || order.getStatus() != OrderStatus.PENDING) {
 			order.cancel();
 		} else {
 			order.waitToApproval();

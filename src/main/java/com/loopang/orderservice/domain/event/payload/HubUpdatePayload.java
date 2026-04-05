@@ -7,6 +7,6 @@ public record HubUpdatePayload(
 		UUID orderId,
 		UUID hubId,
 		UUID hubInventoryId,
-		Integer quantity,
-		Integer balance // 재고 차감 후 남은 수량 (음수면 재고 부족)
+		int quantity,
+		int balance // 재고 차감 연산 후 남은 수량 (음수면 재고 부족)
 ) { }

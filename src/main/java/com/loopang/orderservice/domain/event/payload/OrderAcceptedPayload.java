@@ -1,6 +1,8 @@
 package com.loopang.orderservice.domain.event.payload;
 
 import com.loopang.orderservice.domain.entity.Order;
+import com.loopang.orderservice.domain.exception.OrderErrorCode;
+import com.loopang.orderservice.domain.exception.OrderException;
 import com.loopang.orderservice.domain.vo.Receiver;
 import com.loopang.orderservice.domain.vo.Supplier;
 
@@ -22,6 +24,10 @@ public record OrderAcceptedPayload(
 	public static OrderAcceptedPayload from(Order order) {
 		Supplier supplier = order.getSupplier();
 		Receiver receiver = order.getReceiver();
+
+		if (order.getHubManager() == null) {
+			throw new OrderException(OrderErrorCode.ORDER_INVALID_STATUS_TRANSITION);
+		}
 
 		return new OrderAcceptedPayload(
 				order.getOrderId(),
