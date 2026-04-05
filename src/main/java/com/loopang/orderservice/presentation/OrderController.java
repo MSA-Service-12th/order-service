@@ -65,4 +65,12 @@ public class OrderController {
 
 		return OrderDeleteResponseDto.from(result);
 	}
+
+	@PatchMapping("/{orderId}/approve")
+	public void approveOrder(
+			@PathVariable UUID orderId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
+			@RequestHeader(value = "X-User-Role") String userRole) {
+		orderCommandFacade.approveOrder(orderId, userId, UserType.from(userRole));
+	}
 }

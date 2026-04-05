@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface OrderCommandService {
 	OrderCreateResultDto createOrder(OrderCreateCommandDto request, UserType userType);
 	OrderDeleteCommandDto deleteOrder(UUID orderId, UUID userId, UserType userType);
+	void approveOrder(UUID orderId, UUID userId, UserType userType);
 }
