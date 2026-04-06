@@ -58,8 +58,8 @@ public class OrderDtoMapper {
                 .quantity(item.getQuantity())
 
                 // 담당 허브 관리자 정보 (HubManager VO)
-                .hubChargeId(manager.map(HubManager::getHubChargeId).orElse(null))
-                .hubChargeName(manager.map(HubManager::getHubChargeName).orElse(null))
+                .hubChargeId(manager.map(HubManager::getHubManagerId).orElse(null))
+                .hubChargeName(manager.map(HubManager::getHubManagerName).orElse(null))
 
                 // 메타데이터
                 .createdAt(order.getCreatedAt())

@@ -56,6 +56,9 @@ topics:
     accepted: order-accepted-topic
   hub:
     stock-updated: hub-update-topic
+  delivery:
+    created: delivery-create-topic
+    status-updated: delivery-update-topic
 
 # 테스트 로그 상세 확인용
 logging:

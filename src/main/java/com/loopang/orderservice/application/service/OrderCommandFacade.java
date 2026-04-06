@@ -5,7 +5,6 @@ import com.loopang.orderservice.application.dto.OrderCreateResultDto;
 import com.loopang.orderservice.application.dto.OrderDeleteCommandDto;
 import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.event.OrderEvents;
-import com.loopang.orderservice.domain.event.payload.HubUpdatePayload;
 import com.loopang.orderservice.domain.service.*;
 import com.loopang.orderservice.domain.service.dto.CompanyData;
 import com.loopang.orderservice.domain.service.dto.HubData;
@@ -13,10 +12,12 @@ import com.loopang.orderservice.domain.service.dto.ItemData;
 import com.loopang.orderservice.domain.service.dto.UserData;
 import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OrderCommandFacade implements OrderCommandService {
@@ -95,21 +96,5 @@ public class OrderCommandFacade implements OrderCommandService {
 
 		// 주문 취소됨 이벤트 발행 (허브 서비스에서 수신하여 재고 복원)
 		orderEvents.cancelled(order);
-	}
-
-	@Override
-	public void handleInventoryResult(HubUpdatePayload payload) {
-		Order order = orderCommandCore.handleInventoryCheckResult(payload.orderId(), payload.balance());
-		if (order.getStatus() == OrderStatus.CANCELLED) {
-			orderEvents.cancelled(order);
-		}
-	}
-
-	@Override
-	public void handleInventoryCheckFailure(HubUpdatePayload payload) {
-		Order order = orderCommandCore.handleInventoryCheckResult(payload.orderId(), -1); // 강제 취소
-		if (order.getStatus() == OrderStatus.CANCELLED) {
-			orderEvents.cancelled(order);
-		}
 	}
 }

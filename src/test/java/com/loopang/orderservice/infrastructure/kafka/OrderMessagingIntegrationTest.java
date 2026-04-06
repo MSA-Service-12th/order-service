@@ -18,7 +18,6 @@ import com.loopang.orderservice.domain.vo.*;
 import com.loopang.orderservice.presentation.dto.OrderCreateRequestDto;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,6 @@ import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +45,13 @@ import static org.mockito.BDDMockito.given;
 // Eureka Server, Config Server 실행 중인 상태일 때 정상적으로 테스트 가능
 @SpringBootTest
 @ActiveProfiles("test")
-@EmbeddedKafka(partitions = 1, topics = {"order-pending-topic", "hub-update-topic"})
+@EmbeddedKafka(partitions = 1, topics = {
+        "order-pending-topic",
+        "order-accepted-topic",
+        "hub-update-topic",
+        "delivery-create-topic",
+        "delivery-update-topic"
+})
 public class OrderMessagingIntegrationTest {
 
     @Autowired
@@ -150,14 +154,15 @@ public class OrderMessagingIntegrationTest {
         int attempts = 0;
         Order updatedOrder = null;
         while (attempts < 20) {
-            updatedOrder = orderRepository.findById(orderId).orElseThrow();
-            if (updatedOrder.getStatus() == OrderStatus.WAIT_TO_APPROVAL) {
+            updatedOrder = orderRepository.findById(orderId).orElse(null);
+            if (updatedOrder != null && updatedOrder.getStatus() == OrderStatus.WAIT_TO_APPROVAL) {
                 break;
             }
             Thread.sleep(500);
             attempts++;
         }
 
+        assertThat(updatedOrder).isNotNull();
         assertThat(updatedOrder.getStatus()).isEqualTo(OrderStatus.WAIT_TO_APPROVAL);
     }
 }

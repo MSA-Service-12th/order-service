@@ -42,7 +42,7 @@ public record OrderAcceptedPayload(
 				receiver.getAddress(),
 				receiver.getContact().getSlackId(),
 
-				order.getHubManager().getHubChargeId()
+				order.getHubManager().getHubManagerId()
 		);
 	}
 }

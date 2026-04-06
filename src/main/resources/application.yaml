@@ -3,6 +3,9 @@ spring:
     name: order-service
   profiles:
     active: dev
+    group:
+      # Config Server에서 application-topics.yml 설정 제공
+      dev: dev, topics
   config:
     import: 'optional:configserver:'
 

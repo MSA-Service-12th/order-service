@@ -12,11 +12,11 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HubManager {
 
-	@Column(name = "hub_charge_id")
-	private UUID hubChargeId;
+	@Column(name = "hub_manager_id")
+	private UUID hubManagerId;
 
-	@Column(name = "hub_charge_name")
-	private String hubChargeName;
+	@Column(name = "hub_manager_name")
+	private String hubManagerName;
 
 	public static HubManager of(UUID userId, String name) {
 		return new HubManager(userId, name);

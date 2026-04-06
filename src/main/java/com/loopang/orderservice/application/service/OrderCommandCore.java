@@ -40,6 +40,61 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
+	public Order handleDeliveryCreation(UUID orderId, UUID deliveryId, UUID departureId, DeliveryStatus deliveryStatus) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+
+		// 1. 배송ID 업데이트 (최초 생성 피드백 시)
+		if (order.getDeliveryId() == null && deliveryId != null) {
+			order.updateDeliveryId(deliveryId);
+		}
+
+		// 2. 상태 전이: ACCEPTED -> ON_DELIVERY
+		// 조건: 배송 상태가 START_DELIVERY이고, 수신한 출발지ID가 주문의 공급업체 허브ID와 일치할 때
+		boolean isStartDelivery = deliveryStatus == DeliveryStatus.START_DELIVERY;
+		boolean isSupplierHubMatch = order.getSupplier().getHubId().equals(departureId);
+
+		if (isStartDelivery && isSupplierHubMatch && order.getStatus() == OrderStatus.ACCEPTED) {
+			order.startDelivery();
+		}
+
+		return order;
+	}
+
+	@Transactional
+	public Order handleDeliveryCompletion(UUID orderId, UUID destinationId, DeliveryStatus deliveryStatus) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+
+		// 상태 전이: ON_DELIVERY -> COMPLETED
+		// 조건: 배송 상태가 COMPLETED이고, 수신한 목적지ID가 주문의 수령업체ID와 일치할 때
+		boolean isCompleted = deliveryStatus == DeliveryStatus.COMPLETED;
+		boolean isReceiverMatch = order.getReceiver().getReceiverId().equals(destinationId);
+
+		if (isCompleted && isReceiverMatch && order.getStatus() == OrderStatus.ON_DELIVERY) {
+			order.complete();
+		}
+
+		return order;
+	}
+
+	@Transactional
+	public Order handleDeliveryRollback(UUID orderId, DeliveryStatus deliveryStatus, boolean isForce) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+
+		boolean isCancelled = deliveryStatus == DeliveryStatus.CANCELLED;
+
+		// 배송 취소 상태이거나 강제 취소(isForce) 요청인 경우 롤백 수행
+		if ((isCancelled || isForce) 
+				&& order.getStatus() != OrderStatus.CANCELLED
+				&& order.getStatus() != OrderStatus.COMPLETED) {
+			order.cancel();
+		}
+		return order;
+	}
+
+	@Transactional
 	public Order handleInventoryCheckResult(UUID orderId, Integer balance) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
