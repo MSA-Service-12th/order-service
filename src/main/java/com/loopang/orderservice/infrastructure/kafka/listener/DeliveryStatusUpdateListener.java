@@ -4,6 +4,7 @@ import com.loopang.common.messaging.IdempotentConsumer;
 import com.loopang.common.util.JsonUtil;
 import com.loopang.orderservice.application.service.OrderInboundEventService;
 import com.loopang.orderservice.domain.event.payload.DeliveryUpdatePayload;
+import com.loopang.orderservice.domain.vo.DeliveryStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -48,9 +49,9 @@ public class DeliveryStatusUpdateListener implements InboundEventListener {
 
 		try {
 			DeliveryUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
-			String status = payload.deliveryStatus();
+			DeliveryStatus status = DeliveryStatus.of(payload.deliveryStatus());
 
-			if (isCompletionStatus(status)) {
+			if (status == DeliveryStatus.COMPLETED) {
 				// [복구] 완료 이벤트인 경우 완료 처리 경로 수행 (이벤트 손실 방지)
 				orderInboundEventService.handleDeliveryCompletion(payload);
 				log.warn("[DLT 복구 성공] 배송 완료 상태 강제 반영 완료 - orderId: {}, messageId: {}", payload.orderId(), messageId);
@@ -66,13 +67,5 @@ public class DeliveryStatusUpdateListener implements InboundEventListener {
 			log.error("[DLT 복구 치명적 실패] 수동 확인 필요! messageId: {}, error: {}", messageId, e.getMessage(), e);
 			// 실패 시 ack를 하지 않음으로써 메시지 유실을 방지하고 에러 로그를 통해 가시성 확보
 		}
-	}
-
-	private boolean isRollbackStatus(String status) {
-		return "CANCELLED".equals(status) || "FAILED".equals(status);
-	}
-
-	private boolean isCompletionStatus(String status) {
-		return "COMPLETED".equals(status) || "DELIVERED".equals(status);
 	}
 }
