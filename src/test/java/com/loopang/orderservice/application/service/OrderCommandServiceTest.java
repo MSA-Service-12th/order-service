@@ -11,10 +11,10 @@ import com.loopang.orderservice.domain.vo.CompanyType;
 import com.loopang.orderservice.domain.vo.OrderStatus;
 import com.loopang.orderservice.domain.vo.UserType;
 import com.loopang.orderservice.presentation.dto.OrderCreateRequestDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -39,12 +39,14 @@ class OrderCommandServiceTest {
     @Mock private OrderValidator orderValidator;
     @Mock private OrderDtoMapper orderDtoMapper;
 
-    @InjectMocks private OrderCommandCore orderCommandCore;
-    @InjectMocks private OrderInboundEventService orderInboundEventService;
-    
+    private OrderCommandCore orderCommandCore;
+    private OrderInboundEventServiceImpl orderInboundEventService;
     private OrderCommandFacade orderCommandFacade;
 
-    private void setupFacade() {
+    @BeforeEach
+    void setUp() {
+        orderCommandCore = new OrderCommandCore(orderRepository, orderAccess);
+        orderInboundEventService = new OrderInboundEventServiceImpl(orderCommandCore, orderEvents);
         orderCommandFacade = new OrderCommandFacade(
                 orderValidator, orderDtoMapper, orderAccess,
                 companyProvider, itemProvider, hubProvider, userProvider,
@@ -56,7 +58,6 @@ class OrderCommandServiceTest {
     @DisplayName("주문 생성 시 PENDING 상태로 저장되고 이벤트가 발행되어야 한다")
     void createOrder_Success() {
         // given
-        setupFacade();
         UUID itemId = UUID.randomUUID();
         UUID supplierId = UUID.randomUUID();
         UUID receiverId = UUID.randomUUID();
@@ -69,7 +70,6 @@ class OrderCommandServiceTest {
         HubData hubData = new HubData(UUID.randomUUID(), "Hub", new HubAddressData("FullAddress"));
 
         given(itemProvider.getItem(any())).willReturn(new ItemData(itemId, "Item", supplierId));
-        // 두 번 호출되므로 차례대로 반환하도록 설정
         given(companyProvider.getCompany(supplierId)).willReturn(supplierData);
         given(companyProvider.getCompany(receiverId)).willReturn(receiverData);
         given(hubProvider.getHub(any())).willReturn(hubData);
@@ -89,7 +89,6 @@ class OrderCommandServiceTest {
     @DisplayName("허브 재고 확인 결과가 성공(balance >= 0)이면 상태가 WAIT_TO_APPROVAL로 전이되어야 한다")
     void handleInventoryResult_Success() {
         // given
-        setupFacade();
         UUID orderId = UUID.randomUUID();
         HubUpdatePayload payload = new HubUpdatePayload(orderId, UUID.randomUUID(), UUID.randomUUID(), 10, 5);
         
@@ -107,7 +106,6 @@ class OrderCommandServiceTest {
     @DisplayName("허브 재고 확인 결과가 실패(balance < 0)이면 상태가 CANCELLED로 전이되어야 한다")
     void handleInventoryResult_Failure() {
         // given
-        setupFacade();
         UUID orderId = UUID.randomUUID();
         HubUpdatePayload payload = new HubUpdatePayload(orderId, UUID.randomUUID(), UUID.randomUUID(), 10, -1);
         
@@ -125,7 +123,6 @@ class OrderCommandServiceTest {
     @DisplayName("허브관리자가 주문을 승인하면 상태가 ACCEPTED로 바뀌고 이벤트가 발행되어야 한다")
     void approveOrder_Success() {
         // given
-        setupFacade();
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         
@@ -147,7 +144,6 @@ class OrderCommandServiceTest {
     @DisplayName("허브관리자가 주문을 취소하면 상태가 CANCELLED로 바뀌고 이벤트가 발행되어야 한다")
     void cancelOrder_Success() {
         // given
-        setupFacade();
         UUID orderId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
         
