@@ -37,8 +37,8 @@
       | quantity             | INT          | NOT NULL                      | 주문수량             |                                                                                           |
       | item_number          | INT          | NOT NULL                      | 상품순번             | 기본값은 1                                                                                    |
       | status               | ENUM         | NOT NULL</br>(기본값은 `PENDING`) | 주문상태             | `PENDING`, `WAIT_TO_APPROVAL`, `ACCEPTED`, `ON_DELIVERY`, `CANCELLED`, `COMPLETED` 중에서 택1 |
-      | hub_charge_id        | UUID         | NULL                          | 허브관리자ID          | 주문을 승인한 허브관리자의 ID </br> • 주문 승인 단계에서 허브관리자ID를 저장 </br> • 권한이 `HUB`인, 로그인한 사용자의 UUID       | 
-      | hub_charge_name      | VARCHAR(50)  | NULL                          | 허브관리자명           | 주문을 승인한 허브관리자의 이름 </br> • 권한이 `HUB`인, 로그인한 사용자의 이름                                        |
+      | hub_manager_id       | UUID         | NULL                          | 허브관리자ID          | 주문을 승인한 허브관리자의 ID </br> • 주문 승인 단계에서 허브관리자ID를 저장 </br> • 권한이 `HUB`인, 로그인한 사용자의 UUID       | 
+      | hub_manager_name     | VARCHAR(50)  | NULL                          | 허브관리자명           | 주문을 승인한 허브관리자의 이름 </br> • 권한이 `HUB`인, 로그인한 사용자의 이름                                        |
       | delivery_id          | UUID         | NULL                          | 배송ID             | • 주문 → 배송 이벤트로 배송 엔티티를 생성</br> • 배송 엔티티 생성 직후 발생한 배송 → 주문 이벤트를 통해 전달받은 배송ID를 저장           |
       | created_at           | TIMESTAMP    | NOT NULL                      | 생성일시             | BaseEntity의 필드 사용                                                                         |
       | created_by           | UUID         | NOT NULL                      | 생성자              | BaseUserEntity의 필드 사용                                                                     |
