@@ -1,6 +1,5 @@
 package com.loopang.orderservice.infrastructure.kafka.listener;
 
-import com.loopang.common.event.OutboxEvent;
 import com.loopang.common.messaging.IdempotentConsumer;
 import com.loopang.common.util.JsonUtil;
 import com.loopang.orderservice.application.service.OrderCommandService;
@@ -14,23 +13,22 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 // 허브 -> 주문 방향 이벤트 수신
-// 허브 재고 차감 -> 주문 엔티티의 상태를 pending에서 wait_to_approval로 변경
-// 허브 재고 차감 실패 -> 주문 엔티티의 상태를 pending에서 cancelled로 변경
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class HubUpdateListener {
+public class HubUpdateListener implements InboundEventListener {
 
 	private final OrderCommandService orderCommandService;
 	private final JsonUtil jsonUtil;
 
+	@Override
 	@IdempotentConsumer("hub-update-group")
-	@KafkaListener(topics = "${topics.hub.stock-updated}", groupId = "order-group")
-	public void onHubUpdate(Message<String> message, Acknowledgment ack) {
+	@KafkaListener(id = "hub-update-listener", topics = "${topics.hub.stock-updated}", groupId = "order-group")
+	public void onEvent(Message<String> message, Acknowledgment ack) {
 		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
 
 		try {
-			HubUpdatePayload payload = extractPayload(message.getPayload());
+			HubUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, HubUpdatePayload.class);
 
 			if (payload == null) {
 				log.error("메시지 페이로드 역직렬화 실패 - messageId: {}, raw: {}", messageId, message.getPayload());
@@ -50,11 +48,12 @@ public class HubUpdateListener {
 		}
 	}
 
+	@Override
 	@KafkaListener(topics = "${topics.hub.stock-updated}.DLT", groupId = "order-group")
 	public void handleDLT(Message<String> message, Acknowledgment ack) {
 		log.error("DLT 수신 - 최종 처리 실패 메시지: {}", message.getPayload());
 		try {
-			HubUpdatePayload payload = extractPayload(message.getPayload());
+			HubUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, HubUpdatePayload.class);
 
 			if (payload != null) {
 				// DLT 단계이므로 주문 강제 취소 로직 호출 (이벤트 발행 포함)
@@ -66,19 +65,7 @@ public class HubUpdateListener {
 		} catch (Exception e) {
 			log.error("DLT 복구 중 치명적 오류 발생: {}", e.getMessage(), e);
 		} finally {
-			// DLT는 더 이상 재시도하지 않으므로 무조건 Acknowledge
 			ack.acknowledge();
-		}
-	}
-
-	private HubUpdatePayload extractPayload(String messagePayload) {
-		try {
-			OutboxEvent outboxEvent = jsonUtil.fromJson(messagePayload, OutboxEvent.class);
-			String payloadJson = jsonUtil.toJson(outboxEvent.payload());
-			return jsonUtil.fromJson(payloadJson, HubUpdatePayload.class);
-		} catch (Exception e) {
-			log.error("Payload 추출 중 오류 발생: {}", e.getMessage());
-			return null;
 		}
 	}
 }

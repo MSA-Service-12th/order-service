@@ -3,6 +3,8 @@ spring:
     name: order-service
   profiles:
     active: dev
+    group:
+      dev: dev, topics
   config:
     import: 'optional:configserver:'
 
