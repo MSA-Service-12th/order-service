@@ -79,12 +79,14 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
-	public Order handleDeliveryRollback(UUID orderId, String deliveryStatus) {
+	public Order handleDeliveryRollback(UUID orderId, String deliveryStatus, boolean isForce) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
-		// 배송 실패/취소 시 롤백 (ON_DELIVERY -> CANCELLED)
-		if (("CANCELLED".equals(deliveryStatus) || "FAILED".equals(deliveryStatus)) 
+		boolean isFailedStatus = "CANCELLED".equals(deliveryStatus) || "FAILED".equals(deliveryStatus);
+
+		// 배송 실패/취소 상태이거나 강제 취소(isForce) 요청인 경우 롤백 수행
+		if ((isFailedStatus || isForce) 
 				&& order.getStatus() != OrderStatus.CANCELLED
 				&& order.getStatus() != OrderStatus.COMPLETED) {
 			order.cancel();

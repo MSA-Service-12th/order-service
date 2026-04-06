@@ -2,7 +2,7 @@ package com.loopang.orderservice.infrastructure.kafka.listener;
 
 import com.loopang.common.messaging.IdempotentConsumer;
 import com.loopang.common.util.JsonUtil;
-import com.loopang.orderservice.application.service.OrderCommandService;
+import com.loopang.orderservice.application.service.OrderInboundEventService;
 import com.loopang.orderservice.domain.event.payload.DeliveryUpdatePayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,13 +12,12 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
-// [흐름 2, 3] 배송 완료 및 배송 실패/취소(롤백) 피드백 처리
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeliveryStatusUpdateListener implements InboundEventListener {
 
-	private final OrderCommandService orderCommandService;
+	private final OrderInboundEventService orderInboundEventService;
 	private final JsonUtil jsonUtil;
 
 	@Override
@@ -28,43 +27,34 @@ public class DeliveryStatusUpdateListener implements InboundEventListener {
 		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
 
 		try {
-			// 페이로드 추출 실패 시 예외가 발생하여 catch 블록으로 이동함
 			DeliveryUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
+			log.info("[배송 상태 업데이트 수신] orderId: {}, status: {}, messageId: {}", payload.orderId(), payload.deliveryStatus(), messageId);
 
-			// 상태에 따라 흐름 분리 호출
-			if (isRollbackStatus(payload.deliveryStatus())) {
-				orderCommandService.handleDeliveryRollback(payload);
-				log.warn("배송 롤백 결과 반영 - orderId: {}, status: {}", payload.orderId(), payload.deliveryStatus());
-			} else {
-				orderCommandService.handleDeliveryCompletion(payload);
-				log.info("배송 완료 결과 반영 - orderId: {}, status: {}", payload.orderId(), payload.deliveryStatus());
-			}
+			// 비즈니스 흐름 판단 로직을 서비스(InboundEventService)로 위임
+			orderInboundEventService.handleDeliveryStatusUpdate(payload);
 
 			ack.acknowledge();
 		} catch (Exception e) {
-			log.error("배송 업데이트 메시지 처리 실패 (재시도 예정) - messageId: {}, error: {}", messageId, e.getMessage());
+			log.error("[배송 업데이트 처리 실패] (재시도 예정) messageId: {}, error: {}", messageId, e.getMessage());
 			throw e;
 		}
 	}
 
 	@Override
-	@KafkaListener(topics = "${topics.delivery.status-updated}.DLT", groupId = "order-group")
+	@KafkaListener(id = "delivery-status-update-dlt-listener", topics = "${topics.delivery.status-updated}.DLT", groupId = "order-group")
 	public void handleDLT(Message<String> message, Acknowledgment ack) {
-		log.error("DLT 수신 - 배송 업데이트 최종 실패 메시지: {}", message.getPayload());
+		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
+		log.error("[DLT 수신] 배송 상태 업데이트 최종 실패 메시지 도착 - messageId: {}", messageId);
+
 		try {
 			DeliveryUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
-
-			// DLT 단계이므로 롤백 메서드를 강제로 호출하여 취소 및 허브 알림 유도
-			orderCommandService.handleDeliveryRollback(payload);
-			log.warn("DLT 처리 - 배송 업데이트 실패로 인한 주문 강제 취소 완료: orderId={}", payload.orderId());
+			// DLT 상황이므로 강제 롤백 수행 (isForce = true)
+			orderInboundEventService.handleDeliveryRollback(payload, true);
+			log.warn("[DLT 처리 성공] 배송 상태 업데이트 실패로 인한 주문 강제 취소 완료 - orderId: {}, messageId: {}", payload.orderId(), messageId);
 		} catch (Exception e) {
-			log.error("DLT 복구 중 오류 발생: {}", e.getMessage(), e);
+			log.error("[DLT 복구 치명적 실패] 수동 확인 필요! messageId: {}, error: {}", messageId, e.getMessage(), e);
 		} finally {
 			ack.acknowledge();
 		}
-	}
-
-	private boolean isRollbackStatus(String status) {
-		return "CANCELLED".equals(status) || "FAILED".equals(status);
 	}
 }
