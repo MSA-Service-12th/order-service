@@ -4,6 +4,7 @@ import com.loopang.orderservice.domain.entity.Order;
 import com.loopang.orderservice.domain.event.OrderEvents;
 import com.loopang.orderservice.domain.event.payload.DeliveryUpdatePayload;
 import com.loopang.orderservice.domain.event.payload.HubUpdatePayload;
+import com.loopang.orderservice.domain.vo.DeliveryStatus;
 import com.loopang.orderservice.domain.vo.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class OrderInboundEventServiceImpl implements OrderInboundEventService {
 				payload.orderId(),
 				payload.deliveryId(),
 				payload.departureId(),
-				payload.deliveryStatus()
+				DeliveryStatus.of(payload.deliveryStatus())
 		);
 	}
 
@@ -47,7 +48,7 @@ public class OrderInboundEventServiceImpl implements OrderInboundEventService {
 		orderCommandCore.handleDeliveryCompletion(
 				payload.orderId(),
 				payload.destinationId(),
-				payload.deliveryStatus()
+				DeliveryStatus.of(payload.deliveryStatus())
 		);
 	}
 
@@ -55,7 +56,7 @@ public class OrderInboundEventServiceImpl implements OrderInboundEventService {
 	public void handleDeliveryRollback(DeliveryUpdatePayload payload, boolean isForce) {
 		Order order = orderCommandCore.handleDeliveryRollback(
 				payload.orderId(),
-				payload.deliveryStatus(),
+				DeliveryStatus.of(payload.deliveryStatus()),
 				isForce
 		);
 
@@ -67,15 +68,14 @@ public class OrderInboundEventServiceImpl implements OrderInboundEventService {
 
 	@Override
 	public void handleDeliveryStatusUpdate(DeliveryUpdatePayload payload) {
-		String status = payload.deliveryStatus();
+		DeliveryStatus status = DeliveryStatus.of(payload.deliveryStatus());
 
-		if ("CANCELLED".equals(status) || "FAILED".equals(status)) {
+		if (status == DeliveryStatus.CANCELLED) {
 			this.handleDeliveryRollback(payload, false);
-		} else if ("COMPLETED".equals(status) || "DELIVERED".equals(status)) {
+		} else if (status == DeliveryStatus.COMPLETED) {
 			this.handleDeliveryCompletion(payload);
 		} else {
 			log.warn("[미처리 배송 상태] orderId: {}, status: {}", payload.orderId(), status);
-			throw new IllegalArgumentException("지원하지 않는 배송 상태입니다: " + status);
 		}
 	}
 }

@@ -9,5 +9,5 @@ public record DeliveryUpdatePayload(
 		UUID departureId,   // 출발지ID (공급업체 허브ID)
 		UUID destinationId, // 목적지ID (수령업체 허브ID 또는 수령업체ID)
 		UUID deliveryId,    // 생성된 배송ID
-		String deliveryStatus // 배송상태 (HUB_WAITING, ON_DELIVERY, COMPLETED, CANCELLED 등)
+		String deliveryStatus // 배송상태 (Enum 매핑 전 원본 문자열)
 ) { }

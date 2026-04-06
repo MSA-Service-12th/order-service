@@ -40,7 +40,7 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
-	public Order handleDeliveryCreation(UUID orderId, UUID deliveryId, UUID departureId, String deliveryStatus) {
+	public Order handleDeliveryCreation(UUID orderId, UUID deliveryId, UUID departureId, DeliveryStatus deliveryStatus) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
@@ -50,11 +50,11 @@ public class OrderCommandCore {
 		}
 
 		// 2. 상태 전이: ACCEPTED -> ON_DELIVERY
-		// 조건: 배송 상태가 '허브대기중'이고, 수신한 출발지ID가 주문의 공급업체 허브ID와 일치할 때
-		boolean isHubWaiting = "HUB_WAITING".equals(deliveryStatus);
+		// 조건: 배송 상태가 START_DELIVERY이고, 수신한 출발지ID가 주문의 공급업체 허브ID와 일치할 때
+		boolean isStartDelivery = deliveryStatus == DeliveryStatus.START_DELIVERY;
 		boolean isSupplierHubMatch = order.getSupplier().getHubId().equals(departureId);
 
-		if (isHubWaiting && isSupplierHubMatch && order.getStatus() == OrderStatus.ACCEPTED) {
+		if (isStartDelivery && isSupplierHubMatch && order.getStatus() == OrderStatus.ACCEPTED) {
 			order.startDelivery();
 		}
 
@@ -62,16 +62,16 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
-	public Order handleDeliveryCompletion(UUID orderId, UUID destinationId, String deliveryStatus) {
+	public Order handleDeliveryCompletion(UUID orderId, UUID destinationId, DeliveryStatus deliveryStatus) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
 		// 상태 전이: ON_DELIVERY -> COMPLETED
-		// 조건: 배송 상태가 '배송완료'이고, 수신한 목적지ID가 주문의 수령업체ID와 일치할 때
-		boolean isDelivered = "DELIVERED".equals(deliveryStatus) || "COMPLETED".equals(deliveryStatus);
+		// 조건: 배송 상태가 COMPLETED이고, 수신한 목적지ID가 주문의 수령업체ID와 일치할 때
+		boolean isCompleted = deliveryStatus == DeliveryStatus.COMPLETED;
 		boolean isReceiverMatch = order.getReceiver().getReceiverId().equals(destinationId);
 
-		if (isDelivered && isReceiverMatch && order.getStatus() == OrderStatus.ON_DELIVERY) {
+		if (isCompleted && isReceiverMatch && order.getStatus() == OrderStatus.ON_DELIVERY) {
 			order.complete();
 		}
 
@@ -79,14 +79,14 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
-	public Order handleDeliveryRollback(UUID orderId, String deliveryStatus, boolean isForce) {
+	public Order handleDeliveryRollback(UUID orderId, DeliveryStatus deliveryStatus, boolean isForce) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
 
-		boolean isFailedStatus = "CANCELLED".equals(deliveryStatus) || "FAILED".equals(deliveryStatus);
+		boolean isCancelled = deliveryStatus == DeliveryStatus.CANCELLED;
 
-		// 배송 실패/취소 상태이거나 강제 취소(isForce) 요청인 경우 롤백 수행
-		if ((isFailedStatus || isForce) 
+		// 배송 취소 상태이거나 강제 취소(isForce) 요청인 경우 롤백 수행
+		if ((isCancelled || isForce) 
 				&& order.getStatus() != OrderStatus.CANCELLED
 				&& order.getStatus() != OrderStatus.COMPLETED) {
 			order.cancel();
