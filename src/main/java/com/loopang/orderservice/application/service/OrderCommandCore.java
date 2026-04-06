@@ -85,7 +85,8 @@ public class OrderCommandCore {
 
 		// 배송 실패/취소 시 롤백 (ON_DELIVERY -> CANCELLED)
 		if (("CANCELLED".equals(deliveryStatus) || "FAILED".equals(deliveryStatus)) 
-				&& order.getStatus() != OrderStatus.CANCELLED) {
+				&& order.getStatus() != OrderStatus.CANCELLED
+				&& order.getStatus() != OrderStatus.COMPLETED) {
 			order.cancel();
 		}
 		return order;
