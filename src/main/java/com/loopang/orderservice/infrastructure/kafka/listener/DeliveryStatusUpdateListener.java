@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DeliveryStatusUpdateListener implements InboundEventListener {
 
-	private final OrderInboundEventService inboundEventService;
+	private final OrderInboundEventService orderInboundEventService;
 	private final JsonUtil jsonUtil;
 
 	@Override
@@ -30,7 +30,8 @@ public class DeliveryStatusUpdateListener implements InboundEventListener {
 			DeliveryUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
 			log.info("[배송 상태 업데이트 수신] orderId: {}, status: {}, messageId: {}", payload.orderId(), payload.deliveryStatus(), messageId);
 
-			inboundEventService.handleDeliveryStatusUpdate(payload);
+			// 비즈니스 흐름 판단 로직을 서비스(OrderInboundEventService)로 위임
+			orderInboundEventService.handleDeliveryStatusUpdate(payload);
 
 			ack.acknowledge();
 		} catch (Exception e) {
@@ -51,11 +52,11 @@ public class DeliveryStatusUpdateListener implements InboundEventListener {
 
 			if (isCompletionStatus(status)) {
 				// [복구] 완료 이벤트인 경우 완료 처리 경로 수행 (이벤트 손실 방지)
-				inboundEventService.handleDeliveryCompletion(payload);
+				orderInboundEventService.handleDeliveryCompletion(payload);
 				log.warn("[DLT 복구 성공] 배송 완료 상태 강제 반영 완료 - orderId: {}, messageId: {}", payload.orderId(), messageId);
 			} else {
 				// [롤백] 실패/취소 혹은 알 수 없는 상태인 경우 강제 롤백 수행
-				inboundEventService.handleDeliveryRollback(payload, true);
+				orderInboundEventService.handleDeliveryRollback(payload, true);
 				log.warn("[DLT 처리 성공] 배송 상태 업데이트 실패로 인한 주문 강제 취소 완료 - orderId: {}, messageId: {}", payload.orderId(), messageId);
 			}
 

@@ -40,6 +40,7 @@ class OrderCommandServiceTest {
     @Mock private OrderDtoMapper orderDtoMapper;
 
     @InjectMocks private OrderCommandCore orderCommandCore;
+    @InjectMocks private OrderInboundEventService orderInboundEventService;
     
     private OrderCommandFacade orderCommandFacade;
 
@@ -96,7 +97,7 @@ class OrderCommandServiceTest {
         given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
 
         // when
-        orderCommandFacade.handleInventoryResult(payload);
+        orderInboundEventService.handleInventoryResult(payload);
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.WAIT_TO_APPROVAL);
@@ -114,7 +115,7 @@ class OrderCommandServiceTest {
         given(orderRepository.findById(orderId)).willReturn(Optional.of(order));
 
         // when
-        orderCommandFacade.handleInventoryResult(payload);
+        orderInboundEventService.handleInventoryResult(payload);
 
         // then
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);

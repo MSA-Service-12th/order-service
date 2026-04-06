@@ -103,7 +103,7 @@ public class Order extends BaseUserEntity {
 
 	public boolean isManagedByOrInitial(UUID userId, UUID managedHubId) {
 		// 1. 직접 담당자로 지정된 경우
-		if (this.hubManager != null && Objects.equals(this.hubManager.getHubChargeId(), userId)) {
+		if (this.hubManager != null && Objects.equals(this.hubManager.getHubManagerId(), userId)) {
 			return true;
 		}
 		if (managedHubId == null) {
