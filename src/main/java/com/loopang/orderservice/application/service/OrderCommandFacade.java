@@ -11,10 +11,7 @@ import com.loopang.orderservice.domain.service.dto.CompanyData;
 import com.loopang.orderservice.domain.service.dto.HubData;
 import com.loopang.orderservice.domain.service.dto.ItemData;
 import com.loopang.orderservice.domain.service.dto.UserData;
-import com.loopang.orderservice.domain.vo.OrderItem;
-import com.loopang.orderservice.domain.vo.Receiver;
-import com.loopang.orderservice.domain.vo.Supplier;
-import com.loopang.orderservice.domain.vo.UserType;
+import com.loopang.orderservice.domain.vo.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -102,11 +99,17 @@ public class OrderCommandFacade implements OrderCommandService {
 
 	@Override
 	public void handleInventoryResult(HubUpdatePayload payload) {
-		orderCommandCore.handleInventoryCheckResult(payload.orderId(), payload.balance());
+		Order order = orderCommandCore.handleInventoryCheckResult(payload.orderId(), payload.balance());
+		if (order.getStatus() == OrderStatus.CANCELLED) {
+			orderEvents.cancelled(order);
+		}
 	}
 
 	@Override
 	public void handleInventoryCheckFailure(HubUpdatePayload payload) {
-		orderCommandCore.handleInventoryCheckResult(payload.orderId(), -1); // 강제 취소 (balance < 0 유도)
+		Order order = orderCommandCore.handleInventoryCheckResult(payload.orderId(), -1); // 강제 취소
+		if (order.getStatus() == OrderStatus.CANCELLED) {
+			orderEvents.cancelled(order);
+		}
 	}
 }

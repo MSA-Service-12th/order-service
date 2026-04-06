@@ -30,28 +30,22 @@ public class HubUpdateListener {
 		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
 
 		try {
-			// 1. OutboxEvent로 역직렬화
-			OutboxEvent outboxEvent = jsonUtil.fromJson(message.getPayload(), OutboxEvent.class);
-
-			// 2. OutboxEvent의 payload를 HubUpdatePayload로 변환
-			String payloadJson = jsonUtil.toJson(outboxEvent.payload());
-			HubUpdatePayload payload = jsonUtil.fromJson(payloadJson, HubUpdatePayload.class);
+			HubUpdatePayload payload = extractPayload(message.getPayload());
 
 			if (payload == null) {
 				log.error("메시지 페이로드 역직렬화 실패 - messageId: {}, raw: {}", messageId, message.getPayload());
 				throw new IllegalArgumentException("HubUpdatePayload is null");
 			}
 
-			// 3. 주문 서비스 로직 호출 (재고 확인 결과 반영)
+			// 주문 서비스 로직 호출 (재고 확인 결과 반영)
 			orderCommandService.handleInventoryResult(payload);
 			log.info("허브 재고 결과 반영 완료 - orderId: {}, balance: {}, messageId: {}",
 					payload.orderId(), payload.balance(), messageId);
 
-			// 4. 메시지 처리 성공 확인 (Acknowledge)
 			ack.acknowledge();
 		} catch (Exception e) {
 			log.error("허브 업데이트 메시지 처리 실패 (재시도 예정) - messageId: {}, error: {}",
-					messageId, e.getMessage(), e);
+					messageId, e.getMessage());
 			throw e;
 		}
 	}
@@ -60,20 +54,31 @@ public class HubUpdateListener {
 	public void handleDLT(Message<String> message, Acknowledgment ack) {
 		log.error("DLT 수신 - 최종 처리 실패 메시지: {}", message.getPayload());
 		try {
-			OutboxEvent outboxEvent = jsonUtil.fromJson(message.getPayload(), OutboxEvent.class);
-			String payloadJson = jsonUtil.toJson(outboxEvent.payload());
-			HubUpdatePayload payload = jsonUtil.fromJson(payloadJson, HubUpdatePayload.class);
+			HubUpdatePayload payload = extractPayload(message.getPayload());
 
 			if (payload != null) {
+				// DLT 단계이므로 주문 강제 취소 로직 호출 (이벤트 발행 포함)
 				orderCommandService.handleInventoryCheckFailure(payload);
-				log.warn("DLT 처리 - 주문 강제 취소 완료: orderId={}", payload.orderId());
+				log.warn("DLT 처리 - 주문 강제 취소 및 보상 이벤트 발행 완료: orderId={}", payload.orderId());
 			} else {
-				log.error("DLT 메시지 복구 실패 - 페이로드가 null입니다. 수동 확인 필요: {}", message.getPayload());
+				log.error("DLT 메시지 복구 불가 - 페이로드가 null입니다. 수동 확인 필요: {}", message.getPayload());
 			}
 		} catch (Exception e) {
-			log.error("DLT 복구 중 심각한 오류 발생: {}", message.getPayload(), e);
+			log.error("DLT 복구 중 치명적 오류 발생: {}", e.getMessage(), e);
 		} finally {
+			// DLT는 더 이상 재시도하지 않으므로 무조건 Acknowledge
 			ack.acknowledge();
+		}
+	}
+
+	private HubUpdatePayload extractPayload(String messagePayload) {
+		try {
+			OutboxEvent outboxEvent = jsonUtil.fromJson(messagePayload, OutboxEvent.class);
+			String payloadJson = jsonUtil.toJson(outboxEvent.payload());
+			return jsonUtil.fromJson(payloadJson, HubUpdatePayload.class);
+		} catch (Exception e) {
+			log.error("Payload 추출 중 오류 발생: {}", e.getMessage());
+			return null;
 		}
 	}
 }

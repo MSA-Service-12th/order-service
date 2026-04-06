@@ -40,15 +40,19 @@ public class OrderCommandCore {
 	}
 
 	@Transactional
-	public void handleInventoryCheckResult(UUID orderId, Integer balance) {
+	public Order handleInventoryCheckResult(UUID orderId, Integer balance) {
 		Order order = orderRepository.findById(orderId)
 				.orElseThrow(() -> new OrderException(OrderErrorCode.ORDER_NOT_FOUND));
+		boolean isOutOfStock = balance < 0;
 
-		if (balance < 0 || order.getStatus() != OrderStatus.PENDING) {
+		if (isOutOfStock && order.getStatus() != OrderStatus.CANCELLED) {
 			order.cancel();
-		} else {
+		} else if (!isOutOfStock && order.getStatus() == OrderStatus.PENDING) {
 			order.waitToApproval();
 		}
+
+		// 이미 승인 완료되어 배송 진행/배송 완료된 주문에 대해서는 별도 처리 없이 통과
+		return order;
 	}
 
 	@Transactional
