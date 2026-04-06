@@ -28,12 +28,8 @@ public class HubUpdateListener implements InboundEventListener {
 		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
 
 		try {
+			// 페이로드 추출 실패 시 예외가 발생하여 catch 블록으로 이동함
 			HubUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, HubUpdatePayload.class);
-
-			if (payload == null) {
-				log.error("메시지 페이로드 역직렬화 실패 - messageId: {}, raw: {}", messageId, message.getPayload());
-				throw new IllegalArgumentException("HubUpdatePayload is null");
-			}
 
 			// 주문 서비스 로직 호출 (재고 확인 결과 반영)
 			orderCommandService.handleInventoryResult(payload);
@@ -55,13 +51,9 @@ public class HubUpdateListener implements InboundEventListener {
 		try {
 			HubUpdatePayload payload = extractPayload(message.getPayload(), jsonUtil, HubUpdatePayload.class);
 
-			if (payload != null) {
-				// DLT 단계이므로 주문 강제 취소 로직 호출 (이벤트 발행 포함)
-				orderCommandService.handleInventoryCheckFailure(payload);
-				log.warn("DLT 처리 - 주문 강제 취소 및 보상 이벤트 발행 완료: orderId={}", payload.orderId());
-			} else {
-				log.error("DLT 메시지 복구 불가 - 페이로드가 null입니다. 수동 확인 필요: {}", message.getPayload());
-			}
+			// DLT 단계이므로 주문 강제 취소 로직 호출 (이벤트 발행 포함)
+			orderCommandService.handleInventoryCheckFailure(payload);
+			log.warn("DLT 처리 - 주문 강제 취소 및 보상 이벤트 발행 완료: orderId={}", payload.orderId());
 		} catch (Exception e) {
 			log.error("DLT 복구 중 치명적 오류 발생: {}", e.getMessage(), e);
 		} finally {

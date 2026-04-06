@@ -21,7 +21,7 @@ public interface InboundEventListener {
 			String payloadJson = jsonUtil.toJson(outboxEvent.payload());
 			return jsonUtil.fromJson(payloadJson, payloadClass);
 		} catch (Exception e) {
-			return null;
+			throw new IllegalArgumentException("Failed to extract payload: " + e.getMessage(), e);
 		}
 	}
 }

@@ -12,6 +12,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
+// [흐름 1] 배송 엔티티 생성 직후의 피드백 처리
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,13 +28,12 @@ public class DeliveryCreateListener implements InboundEventListener {
 		Object messageId = message.getHeaders().get(KafkaHeaders.RECEIVED_KEY);
 
 		try {
+			// 페이로드 추출 실패 시 예외가 발생하여 catch 블록으로 이동함
 			DeliveryUpdatePayload payload
 					= extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
 
-			if (payload != null) {
-				orderCommandService.handleDeliveryCreation(payload);
-				log.info("배송 생성 피드백 반영 완료 - orderId: {}, deliveryId: {}", payload.orderId(), payload.deliveryId());
-			}
+			orderCommandService.handleDeliveryCreation(payload);
+			log.info("배송 생성 피드백 반영 완료 - orderId: {}, deliveryId: {}", payload.orderId(), payload.deliveryId());
 
 			ack.acknowledge();
 		} catch (Exception e) {
@@ -50,10 +50,9 @@ public class DeliveryCreateListener implements InboundEventListener {
 			DeliveryUpdatePayload payload
 					= extractPayload(message.getPayload(), jsonUtil, DeliveryUpdatePayload.class);
 
-			if (payload != null) {
-				orderCommandService.handleDeliveryRollback(payload);
-				log.warn("DLT 처리 - 배송 생성 실패로 인한 주문 강제 취소 완료: orderId={}", payload.orderId());
-			}
+			// DLT 단계이므로 롤백 메서드를 호출하여 강제 취소 및 허브 알림 유도
+			orderCommandService.handleDeliveryRollback(payload);
+			log.warn("DLT 처리 - 배송 생성 실패로 인한 주문 강제 취소 완료: orderId={}", payload.orderId());
 		} catch (Exception e) {
 			log.error("DLT 복구 중 오류 발생: {}", e.getMessage(), e);
 		} finally {
