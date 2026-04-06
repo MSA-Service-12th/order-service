@@ -48,7 +48,7 @@ public class OrderQueryCondition {
 				builder.and(order.createdBy.eq(userId));
 			}
 			case DELIVERY -> {
-				// 배송 담당자 목록 검색은 현재 구조에서 별도 배송 서비스 연동이 필요하므로 안전하게 빈 결과 반환
+				// 배송 담당자의 주문 목록 검색 차단(본인이 담당한 주문만 조회 가능)
 				builder.and(order.orderId.isNull());
 			}
 			default -> builder.and(order.orderId.isNull());
@@ -58,6 +58,7 @@ public class OrderQueryCondition {
 	public static OrderSpecifier<?>[] getOrderSpecifier(Sort sort) {
 		return sort.stream()
 				.map(orderSort -> {
+					// QueryDSL에서 제공하는 정렬용 Order와 주문 엔티티의 이름이 중복되어 제대로 식별하기 위해 전체 패키지명 기입
 					com.querydsl.core.types.Order direction = orderSort.isAscending() ? ASC : DESC;
 
 					return switch (orderSort.getProperty()) {

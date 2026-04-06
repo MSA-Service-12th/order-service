@@ -1,12 +1,11 @@
 package com.loopang.orderservice.domain.vo;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Embeddable
 @Getter
@@ -14,10 +13,10 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Contact {
 
-	private UUID companyManagerId;
+	@Column(name = "receiver_slack_id", length = 50, nullable = false)
 	private String slackId;
 
-	public static Contact of(UUID companyManagerId, String slackId) {
-		return new Contact(companyManagerId, slackId);
+	public static Contact of(String slackId) {
+		return new Contact(slackId);
 	}
 }

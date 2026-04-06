@@ -38,20 +38,21 @@ public class Receiver {
 	@Embedded
 	private HubInfo hubInfo;
 
-	@Transient
+	@Embedded
 	private Contact contact;
 
 	@Builder(access = AccessLevel.PRIVATE)
-	private Receiver(UUID receiverId, String receiverName, String address, String requirements, CompanyType type, HubInfo hubInfo) {
+	private Receiver(UUID receiverId, String receiverName, String address, String requirements, CompanyType type, HubInfo hubInfo, Contact contact) {
 		this.receiverId = receiverId;
 		this.receiverName = receiverName;
 		this.address = address;
 		this.requirements = requirements;
 		this.type = type;
 		this.hubInfo = hubInfo;
+		this.contact = contact;
 	}
 
-	public static Receiver of(CompanyData companyData, HubData receiverHub, String requirements) {
+	public static Receiver of(CompanyData companyData, HubData receiverHub, String requirements, String slackId) {
 		if (companyData.companyType() != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
 		}
@@ -62,11 +63,8 @@ public class Receiver {
 				.requirements(requirements)
 				.type(companyData.companyType())
 				.hubInfo(HubInfo.of(receiverHub.hubId(), receiverHub.hubName(), receiverHub.getAddress()))
+				.contact(Contact.of(slackId)) // 헤더에서 받은 슬랙 ID 저장
 				.build();
-	}
-
-	public void updateContact(Contact contact) {
-		this.contact = contact;
 	}
 
 	public UUID getHubId() {

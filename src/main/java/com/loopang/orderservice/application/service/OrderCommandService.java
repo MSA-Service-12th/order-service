@@ -8,6 +8,10 @@ import com.loopang.orderservice.domain.vo.UserType;
 import java.util.UUID;
 
 public interface OrderCommandService {
-	OrderCreateResultDto createOrder(OrderCreateCommandDto request, UserType userType);
+	OrderCreateResultDto createOrder(OrderCreateCommandDto request, String slackId, UserType userType);
 	OrderDeleteCommandDto deleteOrder(UUID orderId, UUID userId, UserType userType);
+	void approveOrder(UUID orderId, UUID userId, UserType userType);
+	void cancelOrder(UUID orderId, UUID userId, UserType userType);
+	void handleInventoryResult(com.loopang.orderservice.domain.event.payload.HubUpdatePayload payload);
+	void handleInventoryCheckFailure(com.loopang.orderservice.domain.event.payload.HubUpdatePayload payload);
 }

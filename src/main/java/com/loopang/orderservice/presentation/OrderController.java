@@ -28,9 +28,10 @@ public class OrderController {
 	@PostMapping
 	public OrderCreateResponseDto createOrder(
 			@Valid @RequestBody OrderCreateRequestDto requestDto,
-			@RequestHeader(value = "X-User-Role") String userRole) {
+			@RequestHeader(value = "X-User-Role") String userRole,
+			@RequestHeader(value = "X-User-Slack-Id") String slackId) {
 		OrderCreateResultDto result
-				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), UserType.from(userRole));
+				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), slackId, UserType.from(userRole));
 
 		return OrderCreateResponseDto.from(result);
 	}
@@ -64,5 +65,21 @@ public class OrderController {
 		OrderDeleteCommandDto result = orderCommandFacade.deleteOrder(orderId, userId, UserType.from(userRole));
 
 		return OrderDeleteResponseDto.from(result);
+	}
+
+	@PatchMapping("/{orderId}/approve")
+	public void approveOrder(
+			@PathVariable UUID orderId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
+			@RequestHeader(value = "X-User-Role") String userRole) {
+		orderCommandFacade.approveOrder(orderId, userId, UserType.from(userRole));
+	}
+
+	@PatchMapping("/{orderId}/cancel")
+	public void cancelOrder(
+			@PathVariable UUID orderId,
+			@RequestHeader(value = "X-User-UUID") UUID userId,
+			@RequestHeader(value = "X-User-Role") String userRole) {
+		orderCommandFacade.cancelOrder(orderId, userId, UserType.from(userRole));
 	}
 }

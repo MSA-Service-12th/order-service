@@ -83,8 +83,10 @@ public class Order extends BaseUserEntity {
 	}
 
 	public void delete(UUID deletedBy) {
-		if (this.status != OrderStatus.PENDING &&
-				this.status != OrderStatus.WAIT_TO_APPROVAL) {
+		// 주문 취소 API 요청 -> 재고 차감 이전 & 승인되기 전 단계인 PENDING, WAIT_TO_APPROVAL일 때 CANCELLED로 전환 -> 주문 삭제
+		// 주문/배송 진행 중 오류 발생 -> 주문 상태를 CANCELLED로 변경 -> 주문 삭제
+		// 따라서, 주문 상태가 CANCELLED일 때만 주문 삭제가 가능함.
+		if (this.status != OrderStatus.CANCELLED) {
 			throw new OrderException(OrderErrorCode.ORDER_CANNOT_DELETE);
 		}
 		if (this.isDeleted()) {

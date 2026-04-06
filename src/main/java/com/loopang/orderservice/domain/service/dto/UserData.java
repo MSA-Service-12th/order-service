@@ -4,5 +4,6 @@ import java.util.UUID;
 
 public record UserData(
 		UUID hubId,
+		String name,
 		String slackId
 ) { }
