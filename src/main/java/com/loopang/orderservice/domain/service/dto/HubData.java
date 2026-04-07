@@ -4,10 +4,14 @@ import java.util.UUID;
 
 public record HubData(
 		UUID hubId,
-		String hubName,
-		HubAddressData address
+		String name,
+		String fullAddress
 ) {
+	public String hubName() {
+		return name;
+	}
+
 	public String getAddress() {
-		return address != null ? address.fullAddress() : null;
+		return fullAddress;
 	}
 }
