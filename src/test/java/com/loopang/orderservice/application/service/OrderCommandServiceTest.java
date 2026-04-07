@@ -65,9 +65,9 @@ class OrderCommandServiceTest {
         OrderCreateRequestDto requestDto = new OrderCreateRequestDto(supplierId, receiverId, itemId, 10, "Requirements");
         OrderCreateCommandDto request = OrderCreateCommandDto.from(requestDto);
         
-        CompanyData supplierData = new CompanyData(supplierId, "Supplier", CompanyType.SUPPLIER, new HubInfoData(UUID.randomUUID(), "HubName"), "Address");
-        CompanyData receiverData = new CompanyData(receiverId, "Receiver", CompanyType.RECEIVER, new HubInfoData(UUID.randomUUID(), "HubName"), "Address");
-        HubData hubData = new HubData(UUID.randomUUID(), "Hub", new HubAddressData("FullAddress"));
+        CompanyData supplierData = new CompanyData(supplierId, "Supplier", CompanyType.SUPPLIER, UUID.randomUUID(), "HubName", "Address");
+        CompanyData receiverData = new CompanyData(receiverId, "Receiver", CompanyType.RECEIVER, UUID.randomUUID(), "HubName", "Address");
+        HubData hubData = new HubData(UUID.randomUUID(), "Hub", "FullAddress");
 
         given(itemProvider.getItem(any())).willReturn(new ItemData(itemId, "Item", supplierId));
         given(companyProvider.getCompany(supplierId)).willReturn(supplierData);

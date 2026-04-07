@@ -1,5 +1,6 @@
 package com.loopang.orderservice.presentation;
 
+import com.loopang.common.response.CommonResponse;
 import com.loopang.orderservice.application.dto.*;
 import com.loopang.orderservice.application.service.OrderCommandFacade;
 import com.loopang.orderservice.application.service.OrderQueryFacade;
@@ -26,60 +27,63 @@ public class OrderController {
 	private final OrderQueryFacade orderQueryFacade;
 
 	@PostMapping
-	public OrderCreateResponseDto createOrder(
+	public CommonResponse<OrderCreateResponseDto> createOrder(
 			@Valid @RequestBody OrderCreateRequestDto requestDto,
 			@RequestHeader(value = "X-User-Role") String userRole,
 			@RequestHeader(value = "X-User-Slack-Id") String slackId) {
 		OrderCreateResultDto result
 				= orderCommandFacade.createOrder(OrderCreateCommandDto.from(requestDto), slackId, UserType.from(userRole));
 
-		return OrderCreateResponseDto.from(result);
+		return CommonResponse.of(OrderCreateResponseDto.from(result));
 	}
 
 	@GetMapping("/{orderId}")
-	public OrderDetailResponseDto getOrder(
+	public CommonResponse<OrderDetailResponseDto> getOrder(
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		OrderDetailsDto details = orderQueryFacade.getOrder(orderId, userId, UserType.from(userRole));
 
-		return OrderDetailResponseDto.from(details);
+		return CommonResponse.of(OrderDetailResponseDto.from(details));
 	}
 
 	@GetMapping
-	public Page<OrderSummaryResponseDto> searchOrders(
+	public CommonResponse<Page<OrderSummaryResponseDto>> searchOrders(
 			@ModelAttribute OrderSearchConditionDto condition,
 			@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 
-		return orderQueryFacade.searchOrders(condition, pageable, userId, UserType.from(userRole))
+		Page<OrderSummaryResponseDto> result = orderQueryFacade.searchOrders(condition, pageable, userId, UserType.from(userRole))
 				.map(OrderSummaryResponseDto::from);
+		return CommonResponse.of(result);
 	}
 
 	@DeleteMapping("/{orderId}")
-	public OrderDeleteResponseDto deleteOrder(
+	public CommonResponse<OrderDeleteResponseDto> deleteOrder(
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		OrderDeleteCommandDto result = orderCommandFacade.deleteOrder(orderId, userId, UserType.from(userRole));
 
-		return OrderDeleteResponseDto.from(result);
+		return CommonResponse.of(OrderDeleteResponseDto.from(result));
 	}
 
 	@PatchMapping("/{orderId}/approve")
-	public void approveOrder(
+	public CommonResponse<Void> approveOrder(
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		orderCommandFacade.approveOrder(orderId, userId, UserType.from(userRole));
+		return CommonResponse.of(null);
 	}
 
 	@PatchMapping("/{orderId}/cancel")
-	public void cancelOrder(
+	public CommonResponse<Void> cancelOrder(
 			@PathVariable UUID orderId,
 			@RequestHeader(value = "X-User-UUID") UUID userId,
 			@RequestHeader(value = "X-User-Role") String userRole) {
 		orderCommandFacade.cancelOrder(orderId, userId, UserType.from(userRole));
+		return CommonResponse.of(null);
 	}
 }

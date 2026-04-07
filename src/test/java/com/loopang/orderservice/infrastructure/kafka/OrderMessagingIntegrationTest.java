@@ -100,9 +100,9 @@ public class OrderMessagingIntegrationTest {
         UUID itemId = UUID.randomUUID();
         
         given(itemProvider.getItem(any())).willReturn(new ItemData(itemId, "Test Item", supplierId));
-        given(companyProvider.getCompany(supplierId)).willReturn(new CompanyData(supplierId, "Supplier", CompanyType.SUPPLIER, new HubInfoData(UUID.randomUUID(), "S-Hub"), "Addr"));
-        given(companyProvider.getCompany(receiverId)).willReturn(new CompanyData(receiverId, "Receiver", CompanyType.RECEIVER, new HubInfoData(UUID.randomUUID(), "R-Hub"), "Addr"));
-        given(hubProvider.getHub(any())).willReturn(new HubData(UUID.randomUUID(), "Hub", new HubAddressData("FullAddr")));
+        given(companyProvider.getCompany(supplierId)).willReturn(new CompanyData(supplierId, "Supplier", CompanyType.SUPPLIER, UUID.randomUUID(), "S-Hub", "Addr"));
+        given(companyProvider.getCompany(receiverId)).willReturn(new CompanyData(receiverId, "Receiver", CompanyType.RECEIVER, UUID.randomUUID(), "R-Hub", "Addr"));
+        given(hubProvider.getHub(any())).willReturn(new HubData(UUID.randomUUID(), "Hub", "FullAddr"));
 
         OrderCreateRequestDto requestDto = new OrderCreateRequestDto(supplierId, receiverId, itemId, 5, "Req");
         OrderCreateCommandDto request = OrderCreateCommandDto.from(requestDto);
@@ -128,12 +128,12 @@ public class OrderMessagingIntegrationTest {
     void shouldUpdateStatusWhenReceivingHubUpdateFromKafka() throws InterruptedException {
         // given: 필수 필드를 채운 주문 생성
         Supplier supplier = Supplier.of(
-                new CompanyData(UUID.randomUUID(), "S", CompanyType.SUPPLIER, new HubInfoData(UUID.randomUUID(), "SH"), "Addr"),
-                new HubData(UUID.randomUUID(), "SH", new HubAddressData("Addr"))
+                new CompanyData(UUID.randomUUID(), "S", CompanyType.SUPPLIER, UUID.randomUUID(), "SH", "Addr"),
+                new HubData(UUID.randomUUID(), "SH", "Addr")
         );
         Receiver receiver = Receiver.of(
-                new CompanyData(UUID.randomUUID(), "R", CompanyType.RECEIVER, new HubInfoData(UUID.randomUUID(), "RH"), "Addr"),
-                new HubData(UUID.randomUUID(), "RH", new HubAddressData("Addr")),
+                new CompanyData(UUID.randomUUID(), "R", CompanyType.RECEIVER, UUID.randomUUID(), "RH", "Addr"),
+                new HubData(UUID.randomUUID(), "RH", "Addr"),
                 "Req",
                 "test-slack-id"
         );

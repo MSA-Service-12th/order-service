@@ -1,17 +1,19 @@
 package com.loopang.orderservice.domain.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.loopang.orderservice.domain.vo.CompanyType;
 
 import java.util.UUID;
 
 public record CompanyData(
-		UUID id,
-		String name,
-		CompanyType companyType,
-		HubInfoData hub,
-		String address
+		@JsonProperty("id") UUID id,
+		@JsonProperty("name") String name,
+		@JsonProperty("type") CompanyType type,
+		@JsonProperty("hubId") UUID hubId,
+		@JsonProperty("hubName") String hubName,
+		@JsonProperty("fullAddress") String fullAddress
 ) {
 	public UUID getHubId() {
-		return hub != null ? hub.hubId() : null;
+		return hubId();
 	}
 }

@@ -53,15 +53,15 @@ public class Receiver {
 	}
 
 	public static Receiver of(CompanyData companyData, HubData receiverHub, String requirements, String slackId) {
-		if (companyData.companyType() != CompanyType.RECEIVER) {
+		if (companyData.type() != CompanyType.RECEIVER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_RECEIVER);
 		}
 		return Receiver.builder()
 				.receiverId(companyData.id())
 				.receiverName(companyData.name())
-				.address(companyData.address())
+				.address(companyData.fullAddress())
 				.requirements(requirements)
-				.type(companyData.companyType())
+				.type(companyData.type())
 				.hubInfo(HubInfo.of(receiverHub.hubId(), receiverHub.hubName(), receiverHub.getAddress()))
 				.contact(Contact.of(slackId)) // 헤더에서 받은 슬랙 ID 저장
 				.build();

@@ -38,8 +38,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
 	implementation 'org.postgresql:postgresql'
+
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 	implementation 'com.loopang:common:0.0.5-SNAPSHOT'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
