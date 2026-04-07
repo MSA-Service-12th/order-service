@@ -43,13 +43,13 @@ public class Supplier {
 	}
 
 	public static Supplier of(CompanyData companyData, HubData supplierHub) {
-		if (companyData.companyType() != CompanyType.SUPPLIER) {
+		if (companyData.type() != CompanyType.SUPPLIER) {
 			throw new OrderException(OrderErrorCode.ORDER_INVALID_SUPPLIER);
 		}
 		return Supplier.builder()
 				.supplierId(companyData.id())
 				.supplierName(companyData.name())
-				.type(companyData.companyType())
+				.type(companyData.type())
 				.hubInfo(HubInfo.of(supplierHub.hubId(), supplierHub.hubName(), supplierHub.getAddress()))
 				.build();
 	}

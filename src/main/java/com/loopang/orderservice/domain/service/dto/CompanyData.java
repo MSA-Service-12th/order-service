@@ -7,11 +7,12 @@ import java.util.UUID;
 public record CompanyData(
 		UUID id,
 		String name,
-		CompanyType companyType,
-		HubInfoData hub,
-		String address
+		CompanyType type,
+		UUID hubId,
+		String hubName,
+		String fullAddress
 ) {
 	public UUID getHubId() {
-		return hub != null ? hub.hubId() : null;
+		return hubId();
 	}
 }
